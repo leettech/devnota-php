@@ -2,31 +2,16 @@
 
 namespace NFSe\Tests;
 
-use NFSe\NFSe;
 use NFSe\NFSeCustomer;
 use Illuminate\Support\Arr;
 use NFSe\Models\PaymentNfse;
 use NFSe\GenerateNFSeTemplate;
-use NFSe\Entities\FiscalProfile\RpsConfig;
-use NFSe\Entities\FiscalProfile\NFSeFiscal;
-use NFSe\Entities\FiscalProfile\FiscalConfig;
-use NFSe\Entities\FiscalProfile\ServicoConfig;
-use NFSe\Entities\FiscalProfile\PrestadorConfig;
 
 class GenerateNFSeTemplateTest extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
-
-        NFSe::configureFiscalDefaults(
-            new NFSeFiscal(
-                new RpsConfig(1, 1),
-                new FiscalConfig(1, 3, 2, 1),
-                new ServicoConfig('010401', '501', '115022000', 'TESTE DISC LEETTECH', '2611606', '2611606', 1, 2, 16.74),
-                new PrestadorConfig('16694290000150', '4765745')
-            )
-        );
     }
 
     public function test_template()

@@ -3,7 +3,9 @@
 namespace NFSe\Models\PaymentNfse;
 
 use NFSe\Models\PaymentNfse;
-use NFSe\NFSeFiscalDefaults;
+use NFSe\Entities\NFSeConfig\RpsConfig;
+use NFSe\Entities\NFSeConfig\FiscalConfig;
+use NFSe\Entities\NFSeConfig\ServicoConfig;
 
 final class NFSePayload
 {
@@ -14,11 +16,9 @@ final class NFSePayload
 
     public function toArray(): array
     {
-        $fiscalProfile = NFSeFiscalDefaults::profile();
-
-        $rpsConfig = $fiscalProfile->rps;
-        $fiscalConfig = $fiscalProfile->fiscal;
-        $serviceConfig = $fiscalProfile->servico;
+        $rpsConfig = RpsConfig::setup();
+        $fiscalConfig = FiscalConfig::setup();
+        $serviceConfig = ServicoConfig::setup();
 
         return tap([
             'identificacao' => [

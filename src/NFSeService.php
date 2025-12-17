@@ -8,15 +8,10 @@ use NFSe\Models\PaymentNfse;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use NFSe\Exceptions\IllegalStateException;
-use NFSe\Entities\FiscalProfile\NFSeFiscal;
+use NFSe\Entities\NFSeConfig\PrestadorConfig;
 
 class NFSeService
 {
-    public static function configureFiscalDefaults(NFSeFiscal $nfseFiscal)
-    {
-        NFSeFiscalDefaults::set($nfseFiscal);
-    }
-
     public function retryOnError(PaymentNfse $nfse)
     {
         $template = new GenerateNFSeTemplate($nfse);
@@ -76,7 +71,7 @@ class NFSeService
         $url = sprintf('%s/%s/%s', config('nfse.base_uri'), 'nfse', $action->value);
 
         $headers = [
-            'Company' => NFSeFiscalDefaults::profile()->prestador->cnpj,
+            'Company' => PrestadorConfig::setup()->cnpj,
             'Authorization' => sprintf('Bearer %s', config('nfse.token')),
         ];
         nfseLogger()->info('nfse request', [

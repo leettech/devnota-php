@@ -7,28 +7,14 @@ use NFSe\DTO\IssueNFSeDTO;
 use NFSe\Models\PaymentNfse;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
-use NFSe\Entities\FiscalProfile\RpsConfig;
 use NFSe\Exceptions\IllegalStateException;
-use NFSe\Entities\FiscalProfile\NFSeFiscal;
-use NFSe\Entities\FiscalProfile\FiscalConfig;
-use NFSe\Entities\FiscalProfile\ServicoConfig;
 use NFSe\Models\PaymentNfse\PaymentNfseStatus;
-use NFSe\Entities\FiscalProfile\PrestadorConfig;
 
 class GenerateNFSeTest extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
-
-        NFSe::configureFiscalDefaults(
-            new NFSeFiscal(
-                new RpsConfig(1, 1),
-                new FiscalConfig(1, 2, 3, 4),
-                new ServicoConfig('teste', '1', '4', 'teste', '2611606', '124125', 1, 123, 50.3),
-                new PrestadorConfig('16694290000150', '4765745')
-            )
-        );
     }
 
     public function test_generate_nfse()

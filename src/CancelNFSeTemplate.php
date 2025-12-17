@@ -6,6 +6,8 @@ use NFSe\Models\PaymentNfse;
 use NFSe\Support\HasArrayGet;
 use Spatie\ArrayToXml\ArrayToXml;
 use Illuminate\Contracts\Support\Arrayable;
+use NFSe\Entities\NFSeConfig\ServicoConfig;
+use NFSe\Entities\NFSeConfig\PrestadorConfig;
 
 class CancelNFSeTemplate implements Arrayable
 {
@@ -45,8 +47,8 @@ class CancelNFSeTemplate implements Arrayable
 
     public function template()
     {
-        $prestadorConfig = NFSeFiscalDefaults::profile()->prestador;
-        $servicoConfig = NFSeFiscalDefaults::profile()->servico;
+        $prestadorConfig = PrestadorConfig::setup();
+        $servicoConfig = ServicoConfig::setup();
 
         return [
             'Pedido' => [

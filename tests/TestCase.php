@@ -14,6 +14,7 @@ abstract class TestCase extends Orchestra
         parent::setUp();
 
         $this->setUpDatabase($this->app);
+        $this->setUpNfseConfig();
     }
 
     protected function getPackageProviders($app): array
@@ -56,5 +57,41 @@ abstract class TestCase extends Orchestra
             documentType: Arr::get($args, 'customer.document_type', 'CPF'),
             taxId: Arr::get($args, 'customer.tax_id', '00000000000'),
         );
+    }
+
+    protected function setUpNfseConfig(): void
+    {
+        config([
+            'nfse.config' => [
+                'rps' => [
+                    'serie' => 1,
+                    'tipo' => 1,
+                ],
+
+                'fiscal' => [
+                    'natureza_operacao' => 1,
+                    'optante_simples_nacional' => 3,
+                    'incentivador_cultural' => 2,
+                    'status' => 1,
+                ],
+
+                'servico' => [
+                    'item_lista_servico' => '010401',
+                    'codigo_tributacao_municipio' => '501',
+                    'nbs' => '115022000',
+                    'discriminacao' => 'TESTE DISC LEETTECH',
+                    'codigo_municipio' => '2611606',
+                    'municipio_incidencia' => '2611606',
+                    'exigibilidade_iss' => 1,
+                    'iss_retido' => 2,
+                    'aliquota' => 16.74,
+                ],
+
+                'prestador' => [
+                    'cnpj' => '16694290000150',
+                    'inscricao_municipal' => '4765745',
+                ],
+            ],
+        ]);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace NFSe;
 
-use NFSe\Entities\FiscalProfile\NFSeFiscal;
+use NFSe\Entities\NFSeConfig\NFSeFiscal;
 
 class NFSeFiscalDefaults
 {
