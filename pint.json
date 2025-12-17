@@ -1,0 +1,9 @@
+{
+    "preset": "laravel",
+    "rules": {
+        "array_indentation": false,
+        "ordered_imports": {
+            "sort_algorithm": "length"
+        }
+    }
+}
