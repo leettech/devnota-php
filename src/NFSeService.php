@@ -5,9 +5,11 @@ namespace NFSe;
 use Carbon\Carbon;
 use NFSe\DTO\IssueNFSeDTO;
 use NFSe\Models\PaymentNfse;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use NFSe\Exceptions\IllegalStateException;
 use NFSe\Entities\FiscalProfile\NFSeFiscal;
+use NFSe\Support\NFSeLogger;
 
 class NFSeService
 {
@@ -74,9 +76,12 @@ class NFSeService
     {
         $url = sprintf('%s/%s/%s', config('nfse.base_uri'), 'nfse', $action->value);
 
-        return Http::withHeaders([
-            'Company' => NFSeFiscalDefaults::profile()->prestador->cnpj,
-            'Authorization' => sprintf('Bearer %s', config('nfse.token')),
-        ])->post($url, $body);
+        return tap(
+            Http::withHeaders([
+                'Company' => NFSeFiscalDefaults::profile()->prestador->cnpj,
+                'Authorization' => sprintf('Bearer %s', config('nfse.token')),
+            ])->post($url, $body),
+            fn(Response $res) => nfseLogger()->info('nfse response', $res->json() ?? [])
+        );
     }
 }

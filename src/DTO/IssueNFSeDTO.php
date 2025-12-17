@@ -18,7 +18,7 @@ final class IssueNFSeDTO
         ?string $rps = null
     ) {
         if (is_null($rps)) {
-            $this->rps = Random::randomDigits(10);
+            $this->rps = Random::randomDigits(5);
         } else {
             $this->rps = $rps;
         }

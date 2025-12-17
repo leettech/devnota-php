@@ -30,6 +30,10 @@ class NFSeServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../database/migrations' => database_path('migrations'),
         ], 'nfse-migrations');
+
+        $this->publishes([
+            __DIR__.'/../../config/nfse.php' => config_path('nfse.php'),
+        ], 'nfse-config');
     }
 
     protected function registerRoutes(): void
