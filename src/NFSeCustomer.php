@@ -57,9 +57,10 @@ final class NFSeCustomer
             address: Arr::get($billingDetails, 'address.line_1'),
             complement: Arr::get($billingDetails, 'address.line_2'),
             // TODO: não consegui testar como vem os dados de tax_id
-            // por isso o documentType hardcoded
-            taxId: Arr::get($billingDetails, 'tax_id'),
+            // por isso esta hardcoded
+            taxId: null,
             documentType: 'email',
+            // taxId: Arr::get($billingDetails, 'tax_id'),
             // documentType: Arr::get($billingDetails, 'tax_id_type', 'email'),
             uf: null,
             cityIbgeCode: null,

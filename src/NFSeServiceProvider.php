@@ -32,7 +32,7 @@ class NFSeServiceProvider extends ServiceProvider
         ], 'nfse-migrations');
 
         $this->publishes([
-            __DIR__.'/../../config/nfse.php' => config_path('nfse.php'),
+            __DIR__.'/../config/nfse.php' => config_path('nfse.php'),
         ], 'nfse-config');
     }
 

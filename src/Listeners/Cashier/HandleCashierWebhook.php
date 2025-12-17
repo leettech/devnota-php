@@ -29,7 +29,7 @@ class HandleCashierWebhook
 
         NFSe::generate(new IssueNFSeDTO(
             gatewayPaymentId: $paymentId,
-            price: (string) DolarHoje::convertIf($currency === 'dolar', $price),
+            price: (string) DolarHoje::convertIf($currency === 'USD', $price),
             paymentDate: $paidAt,
             customer: $customer
         ));
