@@ -14,7 +14,7 @@ class NfseWebhookController extends Controller
     public function store(Request $request)
     {
         nfseLogger()->info('nfse callback', request()->all());
-        
+
         $data = $request->response[0];
 
         if (! Arr::has($data, 'rps')) {

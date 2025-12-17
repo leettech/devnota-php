@@ -9,7 +9,6 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use NFSe\Exceptions\IllegalStateException;
 use NFSe\Entities\FiscalProfile\NFSeFiscal;
-use NFSe\Support\NFSeLogger;
 
 class NFSeService
 {
@@ -83,12 +82,12 @@ class NFSeService
         nfseLogger()->info('nfse request', [
             'url' => $url,
             'body' => $body,
-            'headers' => $headers
+            'headers' => $headers,
         ]);
 
         return tap(
             Http::withHeaders($headers)->post($url, $body),
-            fn(Response $res) => nfseLogger()->info('nfse response', $res->json() ?? [])
+            fn (Response $res) => nfseLogger()->info('nfse response', $res->json() ?? [])
         );
     }
 }
