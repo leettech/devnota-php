@@ -76,11 +76,18 @@ class NFSeService
     {
         $url = sprintf('%s/%s/%s', config('nfse.base_uri'), 'nfse', $action->value);
 
+        $headers = [
+            'Company' => NFSeFiscalDefaults::profile()->prestador->cnpj,
+            'Authorization' => sprintf('Bearer %s', config('nfse.token')),
+        ];
+        nfseLogger()->info('nfse request', [
+            'url' => $url,
+            'body' => $body,
+            'headers' => $headers
+        ]);
+
         return tap(
-            Http::withHeaders([
-                'Company' => NFSeFiscalDefaults::profile()->prestador->cnpj,
-                'Authorization' => sprintf('Bearer %s', config('nfse.token')),
-            ])->post($url, $body),
+            Http::withHeaders($headers)->post($url, $body),
             fn(Response $res) => nfseLogger()->info('nfse response', $res->json() ?? [])
         );
     }
