@@ -7,7 +7,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use NFSe\Models\PaymentNfse;
 use Illuminate\Routing\Controller;
-use NFSe\Models\PaymentNfse\PaymentNfseStatus;
 
 class NfseWebhookController extends Controller
 {
@@ -23,22 +22,24 @@ class NfseWebhookController extends Controller
 
         $nfse = PaymentNfse::findByRps($data['rps']);
 
-        if ($request->status == 'processado') {
-            $nfse->fill([
-                'number' => $data['nfse']['numero'],
-                'verification_code' => $data['nfse']['chave'],
-                'issue_date' => $data['data_emissao'],
-                'status' => PaymentNfseStatus::Issued,
-            ]);
+        if (is_null($nfse)) {
+            return;
+        }
 
-            if ($nfse->isDirty()) {
-                $nfse->save();
-            }
+        if ($request->status == 'processado') {
+            $nfse->issue(
+                $data['nfse']['numero'], 
+                $data['nfse']['chave'], 
+                $data['data_emissao']
+            );
         } else {
             // retry on first error only
             if ($nfse->errors()->count() === 0) {
                 NFSe::retryOnError($nfse);
+            } else {
+                $nfse->fail();
             }
+            
             $this->failError($nfse, $request->response[0]['codigo'], $request->response[0]['mensagem']);
         }
     }

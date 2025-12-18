@@ -63,6 +63,13 @@ class PaymentNfse extends Model
         return PaymentNfse::where('rps', $rps)->first();
     }
 
+    public static function findDuplicateForIssue(IssueNFSeDTO $dto)
+    {
+        return PaymentNfse::where('rps', $dto->rps)
+            ->orWhere('gateway_payment_id', $dto->gatewayPaymentId)
+            ->first();
+    }
+
     public function errors()
     {
         return $this->hasMany(PaymentNfseError::class);
@@ -87,6 +94,30 @@ class PaymentNfse extends Model
     public function isProcessing()
     {
         return $this->status == PaymentNfseStatus::Processing;
+    }
+
+    public function failed()
+    {
+        return $this->status == PaymentNfseStatus::Error;
+    }
+
+    public function issue($number, $verificationCode, $issueDate)
+    {
+        $this->fill([
+            'number' => $number,
+            'verification_code' => $verificationCode,
+            'issue_date' => $issueDate,
+            'status' => PaymentNfseStatus::Issued,
+        ]);
+
+        if ($this->isDirty()) {
+            $this->save();
+        }
+    }
+
+    public function fail()
+    {
+        $this->update(['status' => PaymentNfseStatus::Error]);
     }
 
     public function toIssue(): IssueNFSeDTO

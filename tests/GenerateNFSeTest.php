@@ -51,13 +51,6 @@ class GenerateNFSeTest extends TestCase
         Http::assertSentCount(0);
     }
 
-    public function test_foo()
-    {
-        $factory = \NFSe\Models\PaymentNfse::factory();
-
-        $this->assertInstanceOf(\NFSe\Database\Factories\PaymentNfseFactory::class, $factory);
-    }
-
     public function test_dont_generate_nfse_for_older_payments()
     {
         Http::fake(['*' => Http::response()]);

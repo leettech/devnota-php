@@ -24,18 +24,18 @@ class NFSeService
     {
         throw_unless(Carbon::parse($issue->paymentDate)->isSameMonth(now()), new IllegalStateException('NFSe can only be generated in the same month the payment was confirmed'));
 
-        if ($nfse = PaymentNfse::findByRps($issue->rps)) {
+        if ($nfse = PaymentNfse::findDuplicateForIssue($issue)) {
             throw_unless($nfse->isProcessing(), new IllegalStateException('We should not generate a nfse more than once'));
+        } else {
+            $nfse = PaymentNfse::firstOrCreate([
+                'rps' => $issue->rps,
+            ], [
+                'customer' => $issue->customer,
+                'payment_date' => $issue->paymentDate,
+                'price' => $issue->price,
+                'gateway_payment_id' => $issue->gatewayPaymentId,
+            ]);
         }
-
-        $nfse = PaymentNfse::firstOrCreate([
-            'rps' => $issue->rps,
-        ], [
-            'customer' => $issue->customer,
-            'payment_date' => $issue->paymentDate,
-            'price' => $issue->price,
-            'gateway_payment_id' => $issue->gatewayPaymentId,
-        ]);
 
         $template = new GenerateNFSeTemplate($nfse);
 

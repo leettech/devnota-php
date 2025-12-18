@@ -4,10 +4,11 @@ namespace Tests\NFSe\Http;
 
 use NFSe\Tests\TestCase;
 use NFSe\Models\PaymentNfse;
+use NFSe\NFSe;
 
 class NfseWebhookControllerTest extends TestCase
 {
-    public function test_gerar_nf_se_resposta()
+    public function test_generate_nfse_response()
     {
         $nfse = PaymentNfse::factory()->create();
 
@@ -39,5 +40,57 @@ class NfseWebhookControllerTest extends TestCase
         $this->assertTrue($nfse->isIssued());
         $this->assertEquals('41232', $nfse->number);
         $this->assertEquals('2025-12-09 17:57:01', $nfse->issue_date);
+    }
+
+    public function test_register_nfse_error()
+    {
+        NFSe::shouldReceive('retryOnError')->once();
+        $nfse = PaymentNfse::factory()->create();
+
+        $this->postJson(route('nfse.webhook.store'), [
+            'protocolo' => 4489,
+            'status' => 'processado_com_erro',
+            'response' => [
+                [
+                    'rps' => $nfse->rps,
+                    'codigo' => 'RNG6110',
+                    'correcao' => null,
+                    'mensagem' => 'Falha no Schame Xml',
+                ],
+            ],
+        ])->assertOk();
+
+        $nfse->refresh();
+
+        $this->assertTrue($nfse->isProcessing());
+        $this->assertCount(1, $nfse->errors()->get());
+    }
+
+    public function test_nfse_failed_if_receives_error_on_retry()
+    {
+        NFSe::shouldReceive('retryOnError')->never();
+        $nfse = PaymentNfse::factory()->create();
+        $nfse->errors()->create([
+            'code' => 'RNG6110',
+            'message' => 'Falha no Schame Xml',
+        ]);
+
+        $this->postJson(route('nfse.webhook.store'), [
+            'protocolo' => 4489,
+            'status' => 'processado_com_erro',
+            'response' => [
+                [
+                    'rps' => $nfse->rps,
+                    'codigo' => 'RNG6110',
+                    'correcao' => null,
+                    'mensagem' => 'Falha no Schame Xml',
+                ],
+            ],
+        ])->assertOk();
+
+        $nfse->refresh();
+
+        $this->assertTrue($nfse->failed());
+        $this->assertCount(2, $nfse->errors()->get());
     }
 }
