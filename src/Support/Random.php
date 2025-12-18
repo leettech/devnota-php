@@ -9,7 +9,7 @@ class Random
         $digits = '';
 
         for ($i = 0; $i < $length; $i++) {
-            $digits .= random_int(0, 9);
+            $digits .= random_int(1, 9);
         }
 
         return $digits;

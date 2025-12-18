@@ -2,6 +2,7 @@
 
 namespace NFSe\Models;
 
+use Carbon\Carbon;
 use NFSe\NFSeCustomer;
 use NFSe\DTO\IssueNFSeDTO;
 use NFSe\Casts\NFSeCustomerCast;
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $number
  * @property string $gateway_payment_id
  * @property PaymentNfseStatus $status
- * @property \Carbon\Carbon $payment_date
+ * @property $payment_date
  * @property NFSeCustomer $customer
  */
 class PaymentNfse extends Model
@@ -125,7 +126,7 @@ class PaymentNfse extends Model
         return new IssueNFSeDTO(
             rps: $this->rps,
             price: $this->price,
-            paymentDate: $this->payment_date,
+            paymentDate: Carbon::parse($this->payment_date),
             customer: $this->customer,
             gatewayPaymentId: $this->gateway_payment_id
         );
