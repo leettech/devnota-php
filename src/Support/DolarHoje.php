@@ -2,6 +2,7 @@
 
 namespace NFSe\Support;
 
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 class DolarHoje
@@ -10,9 +11,21 @@ class DolarHoje
     {
         $dolar = cache()->remember('dolar-hoje', 60 * 60 * 24, function () {
             return rescue(function () {
-                return Http::get('https://economia.awesomeapi.com.br/json/last/usd')->json('USDBRL.low');
-            }, config('nfse.dolar_fallback_value')); // fallbackzinho de 5.30 não faz mal ;)
+                /** @var Response $response */
+                $response = Http::get('https://economia.awesomeapi.com.br/json/last/usd');
+                
+                if (!$response->successful()) {
+                    return config('nfse.dolar_fallback_value');
+                }
+
+                return $response->json('USDBRL.low');
+            }, config('nfse.dolar_fallback_value'));
         });
+
+        /**
+         * Double check
+         */
+        $dolar = $dolar ?? config('nfse.dolar_fallback_value');
 
         return round($price * $dolar, 2);
     }
