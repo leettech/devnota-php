@@ -67,7 +67,7 @@ class HandleCashierWebhook
     // muito acoplado com o linklist
     public static function user(): ?string
     {
-        $model = config('nfse.models.payment');
+        $model = config('nfse.models.user');
 
         if (! is_string($model) || ! class_exists($model)) {
             nfseLogger()->info('You must configure nfse.models.user with a valid Eloquent model.');
