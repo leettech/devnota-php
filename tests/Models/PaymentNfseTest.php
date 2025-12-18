@@ -3,8 +3,8 @@
 namespace Tests\NFSe\Models;
 
 use NFSe\Tests\TestCase;
-use NFSe\Models\PaymentNfse;
 use NFSe\DTO\IssueNFSeDTO;
+use NFSe\Models\PaymentNfse;
 
 class PaymentNfseTest extends TestCase
 {

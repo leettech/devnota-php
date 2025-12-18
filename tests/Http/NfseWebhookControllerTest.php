@@ -2,9 +2,9 @@
 
 namespace Tests\NFSe\Http;
 
+use NFSe\NFSe;
 use NFSe\Tests\TestCase;
 use NFSe\Models\PaymentNfse;
-use NFSe\NFSe;
 
 class NfseWebhookControllerTest extends TestCase
 {

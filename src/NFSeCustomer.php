@@ -50,7 +50,7 @@ final class NFSeCustomer
     public static function fromStripe(array $billingDetails): self
     {
         return new self(
-            name: Arr::get($billingDetails, 'name'),
+            name: Arr::get($billingDetails, 'name', ''),
             email: Arr::get($billingDetails, 'email'),
             phone: Arr::get($billingDetails, 'phone'),
             zipcode: Arr::get($billingDetails, 'address.postal_code'),

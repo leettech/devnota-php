@@ -13,8 +13,8 @@ class DolarHoje
             return rescue(function () {
                 /** @var Response $response */
                 $response = Http::get('https://economia.awesomeapi.com.br/json/last/usd');
-                
-                if (!$response->successful()) {
+
+                if (! $response->successful()) {
                     return config('nfse.dolar_fallback_value');
                 }
 
