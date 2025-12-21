@@ -14,7 +14,7 @@ class HandleCashierWebhook
 {
     public function handle($event)
     {
-        if (! in_array(Arr::get($event->payload, 'type', ''), ['payment_intent.succeeded', 'charge.succeeded'])) {
+        if (! in_array(Arr::get($event->payload, 'type', ''), ['payment_intent.succeeded'])) {
             return;
         }
 
@@ -61,9 +61,7 @@ class HandleCashierWebhook
     {
         if (Arr::get($event->payload, 'type') === 'payment_intent.succeeded') {
             return Arr::get($event->payload, 'data.object.charges.data.0');
-        } elseif (Arr::get($event->payload, 'type') === 'charge.succeeded') {
-            return Arr::get($event->payload, 'data.object');
-        }
+        } 
 
         return null;
     }
