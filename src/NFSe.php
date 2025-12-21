@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Facade;
  */
 class NFSe extends Facade
 {
+    protected static $checkAllowIssueNFSeFor;
+
     protected static function getFacadeAccessor()
     {
         return 'nfse';
@@ -23,5 +25,18 @@ class NFSe extends Facade
     public static function configureToCashier(): void
     {
         NFSeConfig::useCashier();
+    }
+    
+    public static function canIssueNFSeFor($email): bool
+    {
+        if (is_callable(static::$checkAllowIssueNFSeFor)) {
+            return call_user_func(static::$checkAllowIssueNFSeFor, $email);
+        }
+        return true;
+    }
+
+    public static function allowIssueNFSeFor(callable $callback)
+    {
+        static::$checkAllowIssueNFSeFor = $callback;
     }
 }

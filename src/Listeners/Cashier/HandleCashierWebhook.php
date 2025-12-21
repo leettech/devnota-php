@@ -36,6 +36,11 @@ class HandleCashierWebhook
 
             return;
         }
+
+        if (! NFSe::canIssueNFSeFor($billingDetails['email'])) {
+            return;
+        }
+
         $amount = Arr::get($charge, 'amount_captured');
         $currency = Arr::get($charge, 'currency');
         $paidAt = Carbon::createFromTimestamp(Arr::get($charge, 'created'));
