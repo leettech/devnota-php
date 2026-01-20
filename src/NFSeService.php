@@ -39,8 +39,13 @@ class NFSeService
             throw_unless($payment->paymentNfse->isProcessing(), new IllegalStateException(__('We should not generate a nfse more than once')));
         }
 
+        // Em dados antigos, o rps não é igual ao id do payment
+        // por isso a verificação dupla
+        // podemos ter rps: 10 e payment_id: 1
+        // nesse caso não podemos verificar apenas o rps
         $nfse = $payment->nfse()->firstOrCreate([
             'rps' => $payment->id,
+            'payment_id' => $payment->id
         ], 
         [
             // todo: remover depois de migrar os dados e apagar as colunas
