@@ -6,6 +6,7 @@ use NFSe\NFSe;
 use NFSe\Models\Payment;
 use NFSe\Tests\TestCase;
 use Illuminate\Support\Facades\Http;
+use NFSe\Models\PaymentNfse;
 
 class CancelNFSeTest extends TestCase
 {
@@ -16,7 +17,7 @@ class CancelNFSeTest extends TestCase
         ]);
 
         $payment = Payment::factory()->create();
-        $payment->createNfse();
+        PaymentNfse::factory()->toPayment($payment)->create();
 
         NFSe::cancel($payment);
 

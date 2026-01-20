@@ -39,7 +39,16 @@ class NFSeService
             throw_unless($payment->paymentNfse->isProcessing(), new IllegalStateException(__('We should not generate a nfse more than once')));
         }
 
-        $nfse = $payment->createNfse();
+        $nfse = $payment->nfse()->firstOrCreate([
+            'rps' => $payment->id,
+        ], 
+        [
+            // todo: remover depois de migrar os dados e apagar as colunas
+            'payment_date' => $payment->date,
+            'gateway_payment_id' => $payment->gateway_payment_id,
+            'price' => $payment->price,
+            'customer' => $payment->customer,
+        ]);
 
         $payload = NFSeRequestPayload::make(new GenerateNFSeTemplate($nfse));
 

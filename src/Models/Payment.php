@@ -53,17 +53,4 @@ class Payment extends Model
             get: fn () => $this->nfse()->first(),
         );
     }
-
-    public function createNfse(): PaymentNfse
-    {
-        return $this->nfse()->create([
-            'rps' => $this->id,
-            'payment_id' => $this->id,
-            // todo: remover depois de migrar os dados e apagar as colunas
-            'payment_date' => $this->date,
-            'gateway_payment_id' => $this->gateway_payment_id,
-            'price' => $this->price,
-            'customer' => $this->customer,
-        ]);
-    }
 }

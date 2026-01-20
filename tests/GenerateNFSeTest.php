@@ -40,9 +40,7 @@ class GenerateNFSeTest extends TestCase
         $this->expectException(IllegalStateException::class);
 
         $payment = Payment::factory()->create();
-        $nfse = $payment->createNfse();
-
-        $nfse->update(['status' => PaymentNfseStatus::Issued]);
+        $nfse = PaymentNfse::factory()->issued()->toPayment($payment)->create();
 
         NFSe::generate($payment);
 

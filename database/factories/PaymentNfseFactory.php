@@ -5,6 +5,7 @@ namespace NFSe\Database\Factories;
 use NFSe\Models\Payment;
 use NFSe\Models\PaymentNfse;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use NFSe\Models\PaymentNfse\PaymentNfseStatus;
 
 class PaymentNfseFactory extends Factory
 {
@@ -34,5 +35,24 @@ class PaymentNfseFactory extends Factory
                 'email' => $this->faker->safeEmail(),
             ],
         ];
+    }
+
+    public function issued()
+    {
+        return $this->state(function () {
+            return [
+                'status' => PaymentNfseStatus::Issued,
+            ];
+        });
+    }
+
+    public function toPayment(Payment $payment)
+    {
+        return $this->state(function () use ($payment) {
+            return [
+                'rps' => $payment->id,
+                'payment_id' => $payment->id,
+            ];
+        });
     }
 }
