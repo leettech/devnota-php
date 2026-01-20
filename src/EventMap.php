@@ -2,6 +2,10 @@
 
 namespace NFSe;
 
+use NFSe\Events\RequestSent;
+use NFSe\Events\WebhookReceived;
+use NFSe\Listeners\SaveRequestLog;
+use NFSe\Listeners\SaveWebhookLog;
 use Illuminate\Contracts\Events\Dispatcher;
 use NFSe\Listeners\Cashier\HandleCashierWebhook;
 
@@ -16,6 +20,9 @@ trait EventMap
                 $events->listen($event, $listener);
             }
         }
+
+        $events->listen(RequestSent::class, SaveRequestLog::class);
+        $events->listen(WebhookReceived::class, SaveWebhookLog::class);
     }
 
     protected function eventsForProvider(): array

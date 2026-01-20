@@ -7,6 +7,7 @@ use NFSe\Models\Payment;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use NFSe\Models\PaymentNfse;
+use NFSe\Events\WebhookReceived;
 use Illuminate\Routing\Controller;
 
 class NfseWebhookController extends Controller
@@ -14,6 +15,8 @@ class NfseWebhookController extends Controller
     public function store(Request $request)
     {
         nfseLogger()->info('nfse callback', request()->all());
+
+        WebhookReceived::dispatch(request()->all());
 
         $data = $request->response[0];
 

@@ -29,7 +29,6 @@ class PaymentNfse extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'id',
         'rps',
         'price',
         'verification_code',

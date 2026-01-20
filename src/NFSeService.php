@@ -4,6 +4,7 @@ namespace NFSe;
 
 use Carbon\Carbon;
 use NFSe\Models\Payment;
+use NFSe\Events\RequestSent;
 use NFSe\Models\PaymentNfse;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -40,9 +41,7 @@ class NFSeService
 
         $nfse = $payment->createNfse();
 
-        $template = new GenerateNFSeTemplate($nfse);
-
-        $payload = NFSeRequestPayload::make($template);
+        $payload = NFSeRequestPayload::make(new GenerateNFSeTemplate($nfse));
 
         return $this->post(NFSeAction::Generate, $payload);
     }
@@ -91,7 +90,16 @@ class NFSeService
 
         return tap(
             Http::withHeaders($headers)->post($url, $body),
-            fn (Response $res) => nfseLogger()->info('nfse response', $res->json() ?? [])
+            function (Response $res) use ($url, $body, $headers) {
+                RequestSent::dispatch(
+                    $url,
+                    'post',
+                    $headers,
+                    $body,
+                    $res->json() ?? []
+                );
+                nfseLogger()->info('nfse response', $res->json() ?? []);
+            }
         );
     }
 }

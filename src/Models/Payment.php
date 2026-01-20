@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $gateway_payment_id
  * @property float $price
  * @property mixed $customer
- *
  * @property-read PaymentNfse|null $paymentNfse
  */
 class Payment extends Model
@@ -23,7 +22,6 @@ class Payment extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'id',
         'gateway_payment_id',
         'date',
         'price',

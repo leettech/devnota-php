@@ -9,13 +9,6 @@ class PaymentNfseError extends Model
 {
     use SoftDeletes;
 
-    protected $visible = [
-        'id',
-        'payment_nfse_id',
-        'code',
-        'message',
-    ];
-
     protected $fillable = [
         'payment_nfse_id',
         'code',
