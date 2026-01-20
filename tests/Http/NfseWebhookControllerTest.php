@@ -4,8 +4,8 @@ namespace Tests\NFSe\Http;
 
 use NFSe\NFSe;
 use NFSe\Models\Payment;
-use NFSe\Models\PaymentNfse;
 use NFSe\Tests\TestCase;
+use NFSe\Models\PaymentNfse;
 
 class NfseWebhookControllerTest extends TestCase
 {
@@ -49,7 +49,6 @@ class NfseWebhookControllerTest extends TestCase
         NFSe::shouldReceive('retryOnError')->once();
         $payment = Payment::factory()->create();
         $nfse = PaymentNfse::factory()->toPayment($payment)->create();
-
 
         $this->postJson(route('nfse.webhook.store'), [
             'protocolo' => 4489,

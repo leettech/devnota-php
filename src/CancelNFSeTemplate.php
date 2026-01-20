@@ -6,8 +6,6 @@ use NFSe\Models\PaymentNfse;
 use NFSe\Support\HasArrayGet;
 use Spatie\ArrayToXml\ArrayToXml;
 use Illuminate\Contracts\Support\Arrayable;
-use NFSe\Entities\NFSeConfig\ServicoConfig;
-use NFSe\Entities\NFSeConfig\PrestadorConfig;
 
 class CancelNFSeTemplate implements Arrayable
 {
@@ -47,9 +45,6 @@ class CancelNFSeTemplate implements Arrayable
 
     public function template()
     {
-        $prestadorConfig = PrestadorConfig::setup();
-        $servicoConfig = ServicoConfig::setup();
-
         return [
             'Pedido' => [
                 'InfPedidoCancelamento' => [
@@ -59,9 +54,9 @@ class CancelNFSeTemplate implements Arrayable
                     ],
                     'IdentificacaoNfse' => [
                         'Numero' => $this->nfse->number,
-                        'Cnpj' => $prestadorConfig->cnpj,
-                        'InscricaoMunicipal' => $prestadorConfig->inscricaoMunicipal,
-                        'CodigoMunicipio' => $servicoConfig->codigoMunicipio,
+                        'Cnpj' => config('nfse.config.prestador.cnpj'),
+                        'InscricaoMunicipal' => config('nfse.config.prestador.inscricao_municipal'),
+                        'CodigoMunicipio' => config('nfse.config.servico.codigo_municipio'),
                     ],
                     'CodigoCancelamento' => 1,
                 ],

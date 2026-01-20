@@ -5,7 +5,6 @@ namespace NFSe;
 use NFSe\Models\PaymentNfse;
 use NFSe\Support\HasArrayGet;
 use Illuminate\Contracts\Support\Arrayable;
-use NFSe\Entities\NFSeConfig\PrestadorConfig;
 
 class ConsultNFSeTemplate implements Arrayable
 {
@@ -30,8 +29,6 @@ class ConsultNFSeTemplate implements Arrayable
 
     public function template()
     {
-        $prestadorConfig = PrestadorConfig::setup();
-
         return [
             'identificacao_rps' => [
                 'numero' => $this->nfse->rps,
@@ -39,8 +36,8 @@ class ConsultNFSeTemplate implements Arrayable
                 'tipo' => 1,
             ],
             'prestador' => [
-                'cnpj' => $prestadorConfig->cnpj,
-                'inscricao_municipal' => $prestadorConfig->inscricaoMunicipal,
+                'cnpj' => config('nfse.config.prestador.cnpj'),
+                'inscricao_municipal' => config('nfse.config.prestador.inscricao_municipal'),
             ],
         ];
     }

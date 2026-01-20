@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\MassPrunable;
 class NfseWebhookLog extends Model
 {
     use MassPrunable;
-    
+
     protected $fillable = [
         'request_data',
     ];

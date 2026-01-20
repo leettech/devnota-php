@@ -9,7 +9,6 @@ use NFSe\Models\PaymentNfse;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use NFSe\Exceptions\IllegalStateException;
-use NFSe\Entities\NFSeConfig\PrestadorConfig;
 
 class NFSeService
 {
@@ -45,15 +44,15 @@ class NFSeService
         // nesse caso não podemos verificar apenas o rps
         $nfse = $payment->nfse()->firstOrCreate([
             'rps' => $payment->id,
-            'payment_id' => $payment->id
-        ], 
-        [
-            // todo: remover depois de migrar os dados e apagar as colunas
-            'payment_date' => $payment->date,
-            'gateway_payment_id' => $payment->gateway_payment_id,
-            'price' => $payment->price,
-            'customer' => $payment->customer,
-        ]);
+            'payment_id' => $payment->id,
+        ],
+            [
+                // todo: remover depois de migrar os dados e apagar as colunas
+                'payment_date' => $payment->date,
+                'gateway_payment_id' => $payment->gateway_payment_id,
+                'price' => $payment->price,
+                'customer' => $payment->customer,
+            ]);
 
         $payload = NFSeRequestPayload::make(new GenerateNFSeTemplate($nfse));
 
@@ -93,7 +92,7 @@ class NFSeService
         $url = sprintf('%s/%s/%s', config('nfse.base_uri'), 'nfse', $action->value);
 
         $headers = [
-            'Company' => PrestadorConfig::setup()->cnpj,
+            'Company' => config('nfse.config.prestador.cnpj'),
             'Authorization' => sprintf('Bearer %s', config('nfse.token')),
         ];
         nfseLogger()->info('nfse request', [

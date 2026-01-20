@@ -3,9 +3,6 @@
 namespace NFSe\Models\PaymentNfse;
 
 use NFSe\Models\PaymentNfse;
-use NFSe\Entities\NFSeConfig\RpsConfig;
-use NFSe\Entities\NFSeConfig\FiscalConfig;
-use NFSe\Entities\NFSeConfig\ServicoConfig;
 
 final class NFSePayload
 {
@@ -16,35 +13,31 @@ final class NFSePayload
 
     public function toArray(): array
     {
-        $rpsConfig = RpsConfig::setup();
-        $fiscalConfig = FiscalConfig::setup();
-        $serviceConfig = ServicoConfig::setup();
-
         return tap([
             'identificacao' => [
                 'numero' => (int) $this->nfse->rps,
-                'serie' => $rpsConfig->serie,
-                'tipo' => $rpsConfig->tipo,
+                'serie' => config('nfse.config.rps.serie'),
+                'tipo' => config('nfse.config.rps.tipo'),
             ],
             'data_emissao' => $this->emittedAt,
-            'natureza_operacao' => $fiscalConfig->naturezaOperacao,
-            'optante_simples_nacional' => $fiscalConfig->optanteSimplesNacional,
-            'incentivador_cultural' => $fiscalConfig->incentivadorCultural,
-            'status' => $fiscalConfig->status,
+            'natureza_operacao' => config('nfse.config.fiscal.natureza_operacao'),
+            'optante_simples_nacional' => config('nfse.config.fiscal.optante_simples_nacional'),
+            'incentivador_cultural' => config('nfse.config.fiscal.incentivador_cultural'),
+            'status' => config('nfse.config.fiscal.status'),
 
             'servico' => [
                 'valores' => [
                     'valor_servicos' => $this->nfse->price,
-                    'iss_retido' => $serviceConfig->issRetido,
-                    'aliquota' => $serviceConfig->aliquota,
+                    'iss_retido' => config('nfse.config.servico.iss_retido'),
+                    'aliquota' => config('nfse.config.servico.aliquota'),
                 ],
-                'item_lista_servico' => $serviceConfig->itemListaServico,
-                'codigo_tributacao_municipio' => $serviceConfig->codigoTributacaoMunicipio,
-                'nbs' => $serviceConfig->nbs,
-                'discriminacao' => $serviceConfig->discriminacao,
-                'codigo_municipio' => $serviceConfig->codigoMunicipio,
-                'municipio_incidencia' => $serviceConfig->municipioIncidencia,
-                'exigibilidade_iss' => $serviceConfig->exigibilidadeIss,
+                'item_lista_servico' => config('nfse.config.servico.item_lista_servico'),
+                'codigo_tributacao_municipio' => config('nfse.config.servico.codigo_tributacao_municipio'),
+                'nbs' => config('nfse.config.servico.nbs'),
+                'discriminacao' => config('nfse.config.servico.discriminacao'),
+                'codigo_municipio' => config('nfse.config.servico.codigo_municipio'),
+                'municipio_incidencia' => config('nfse.config.servico.municipio_incidencia'),
+                'exigibilidade_iss' => config('nfse.config.servico.exigibilidade_iss'),
             ],
 
             'tomador' => [],
