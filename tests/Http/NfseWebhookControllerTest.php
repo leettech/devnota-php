@@ -3,14 +3,15 @@
 namespace Tests\NFSe\Http;
 
 use NFSe\NFSe;
+use NFSe\Models\Payment;
 use NFSe\Tests\TestCase;
-use NFSe\Models\PaymentNfse;
 
 class NfseWebhookControllerTest extends TestCase
 {
     public function test_generate_nfse_response()
     {
-        $nfse = PaymentNfse::factory()->create();
+        $payment = Payment::factory()->create();
+        $nfse = $payment->createNfse();
 
         $this->postJson(route('nfse.webhook.store'), [
             'protocolo' => 179,
@@ -45,7 +46,8 @@ class NfseWebhookControllerTest extends TestCase
     public function test_register_nfse_error()
     {
         NFSe::shouldReceive('retryOnError')->once();
-        $nfse = PaymentNfse::factory()->create();
+        $payment = Payment::factory()->create();
+        $nfse = $payment->createNfse();
 
         $this->postJson(route('nfse.webhook.store'), [
             'protocolo' => 4489,
@@ -69,7 +71,8 @@ class NfseWebhookControllerTest extends TestCase
     public function test_nfse_failed_if_receives_error_on_retry()
     {
         NFSe::shouldReceive('retryOnError')->never();
-        $nfse = PaymentNfse::factory()->create();
+        $payment = Payment::factory()->create();
+        $nfse = $payment->createNfse();
         $nfse->errors()->create([
             'code' => 'RNG6110',
             'message' => 'Falha no Schame Xml',

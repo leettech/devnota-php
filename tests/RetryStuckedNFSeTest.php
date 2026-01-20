@@ -3,8 +3,8 @@
 namespace Tests\NFSe;
 
 use NFSe\NFSe;
+use NFSe\Models\Payment;
 use NFSe\Tests\TestCase;
-use NFSe\Models\PaymentNfse;
 use Illuminate\Support\Facades\Http;
 
 class RetryStuckedNFSeTest extends TestCase
@@ -15,9 +15,10 @@ class RetryStuckedNFSeTest extends TestCase
             '*' => Http::fakeSequence()->whenEmpty(Http::response()),
         ]);
 
-        $nfse = PaymentNfse::factory()->make();
+        $payment = Payment::factory()->create();
+        $payment->createNfse();
 
-        NFSe::retryStucked($nfse);
+        NFSe::retryStucked($payment);
 
         Http::assertSentCount(2);
     }

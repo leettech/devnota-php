@@ -9,11 +9,6 @@ use NFSe\GenerateNFSeTemplate;
 
 class GenerateNFSeTemplateTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-    }
-
     public function test_template()
     {
         $nfse = PaymentNfse::factory()->make([

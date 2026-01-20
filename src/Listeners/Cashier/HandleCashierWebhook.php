@@ -5,7 +5,7 @@ namespace NFSe\Listeners\Cashier;
 use NFSe\NFSe;
 use Carbon\Carbon;
 use NFSe\NFSeCustomer;
-use NFSe\DTO\IssueNFSeDTO;
+use NFSe\Models\Payment;
 use Illuminate\Support\Arr;
 use NFSe\Support\DolarHoje;
 use Illuminate\Database\Eloquent\Model;
@@ -49,19 +49,22 @@ class HandleCashierWebhook
 
         $customer = NFSeCustomer::fromStripe($billingDetails);
 
-        NFSe::generate(new IssueNFSeDTO(
-            gatewayPaymentId: $paymentId,
-            price: (string) DolarHoje::convertIf(str($currency)->upper()->toString() === 'USD', $price),
-            paymentDate: $paidAt,
-            customer: $customer
-        ));
+        $payment = Payment::firstOrCreate([
+            'gateway_payment_id' => $paymentId,
+        ], [
+            'customer' => $customer,
+            'date' => $paidAt,
+            'price' => (string) DolarHoje::convertIf(str($currency)->upper()->toString() === 'USD', $price),
+        ]);
+
+        NFSe::generate($payment);
     }
 
     private function getCharge($event)
     {
         if (Arr::get($event->payload, 'type') === 'payment_intent.succeeded') {
             return Arr::get($event->payload, 'data.object.charges.data.0');
-        } 
+        }
 
         return null;
     }

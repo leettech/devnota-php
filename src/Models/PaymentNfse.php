@@ -2,9 +2,7 @@
 
 namespace NFSe\Models;
 
-use Carbon\Carbon;
 use NFSe\NFSeCustomer;
-use NFSe\DTO\IssueNFSeDTO;
 use NFSe\Casts\NFSeCustomerCast;
 use Illuminate\Database\Eloquent\Model;
 use NFSe\Models\PaymentNfse\NFSePayload;
@@ -23,7 +21,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $number
  * @property string $gateway_payment_id
  * @property PaymentNfseStatus $status
- * @property $payment_date
+ * @property string $payment_date
  * @property NFSeCustomer $customer
  */
 class PaymentNfse extends Model
@@ -62,13 +60,6 @@ class PaymentNfse extends Model
     public static function findByRps(string $rps)
     {
         return PaymentNfse::where('rps', $rps)->first();
-    }
-
-    public static function findDuplicateForIssue(IssueNFSeDTO $dto)
-    {
-        return PaymentNfse::where('rps', $dto->rps)
-            ->orWhere('gateway_payment_id', $dto->gatewayPaymentId)
-            ->first();
     }
 
     public function errors()
@@ -119,17 +110,6 @@ class PaymentNfse extends Model
     public function fail()
     {
         $this->update(['status' => PaymentNfseStatus::Error]);
-    }
-
-    public function toIssue(): IssueNFSeDTO
-    {
-        return new IssueNFSeDTO(
-            rps: $this->rps,
-            price: $this->price,
-            paymentDate: Carbon::parse($this->payment_date),
-            customer: $this->customer,
-            gatewayPaymentId: $this->gateway_payment_id
-        );
     }
 
     public function payload($emittedAt)

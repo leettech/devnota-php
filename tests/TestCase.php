@@ -5,6 +5,7 @@ namespace NFSe\Tests;
 use NFSe\NFSeCustomer;
 use Illuminate\Support\Arr;
 use NFSe\NFSeServiceProvider;
+use Illuminate\Support\Facades\File;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
@@ -34,11 +35,18 @@ abstract class TestCase extends Orchestra
             'prefix' => '',
         ]);
 
-        $createPaymentNfseTable = require __DIR__.'/../database/migrations/2025_12_16_122823_create_payment_nfses_table.php';
-        $createPaymentNfseErrorTable = require __DIR__.'/../database/migrations/2025_12_16_122939_create_payment_nfse_errors_table.php';
+        $migrationPath = __DIR__.'/../database/migrations';
 
-        $createPaymentNfseTable->up();
-        $createPaymentNfseErrorTable->up();
+        $files = collect(File::files($migrationPath))
+            ->sortBy(fn ($file) => $file->getFilename());
+
+        foreach ($files as $file) {
+            $migration = require $file->getPathname();
+
+            if (method_exists($migration, 'up')) {
+                $migration->up();
+            }
+        }
     }
 
     protected function fakeNfseCustomer($args = [])

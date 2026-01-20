@@ -3,25 +3,22 @@
 namespace Tests\NFSe;
 
 use NFSe\NFSe;
+use NFSe\Models\Payment;
 use NFSe\Tests\TestCase;
-use NFSe\Models\PaymentNfse;
 use Illuminate\Support\Facades\Http;
 
 class ConsultNFSeTest extends TestCase
 {
-    protected function setUp(): void
+    public function test_consult_nfse()
     {
-        parent::setUp();
         Http::fake([
             '*' => Http::response(),
         ]);
-    }
 
-    public function test_consult_nfse()
-    {
-        $nfse = PaymentNfse::factory()->create();
+        $payment = Payment::factory()->create();
+        $payment->createNfse();
 
-        NFSe::consult($nfse);
+        NFSe::consult($payment);
 
         Http::assertSentCount(1);
     }

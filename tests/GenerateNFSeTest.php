@@ -3,7 +3,7 @@
 namespace NFSe\Tests;
 
 use NFSe\NFSe;
-use NFSe\DTO\IssueNFSeDTO;
+use NFSe\Models\Payment;
 use NFSe\Models\PaymentNfse;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -21,22 +21,17 @@ class GenerateNFSeTest extends TestCase
     {
         Http::fake(['*' => Http::response()]);
 
-        $issueDto = new IssueNFSeDTO(
-            gatewayPaymentId: '1234',
-            price: '4051',
-            paymentDate: now(),
-            customer: $this->fakeNfseCustomer()
-        );
+        $payment = Payment::factory()->create();
 
-        NFSe::generate($issueDto);
+        NFSe::generate($payment);
 
         $nfse = PaymentNfse::first();
 
         Http::assertSentCount(1);
-        Http::assertSent(fn (Request $request) => $request->data()['rps']['identificacao']['numero'] == $issueDto->rps);
+        Http::assertSent(fn (Request $request) => $request->data()['rps']['identificacao']['numero'] == $payment->id);
         $this->assertEquals(PaymentNfseStatus::Processing, $nfse->status);
-        $this->assertEquals($issueDto->rps, $nfse->rps);
-        $this->assertEquals($issueDto->gatewayPaymentId, $nfse->gateway_payment_id);
+        $this->assertEquals($payment->id, $nfse->rps);
+        $this->assertEquals($payment->gateway_payment_id, $nfse->gateway_payment_id);
     }
 
     public function test_dont_duplicate_call_to_generate_nfse()
@@ -44,9 +39,12 @@ class GenerateNFSeTest extends TestCase
         Http::fake(['*' => Http::response()]);
         $this->expectException(IllegalStateException::class);
 
-        $nfse = PaymentNfse::factory()->create(['rps' => 1, 'status' => PaymentNfseStatus::Issued]);
+        $payment = Payment::factory()->create();
+        $nfse = $payment->createNfse();
 
-        NFSe::generate($nfse->toIssue());
+        $nfse->update(['status' => PaymentNfseStatus::Issued]);
+
+        NFSe::generate($payment);
 
         Http::assertSentCount(0);
     }
@@ -55,14 +53,10 @@ class GenerateNFSeTest extends TestCase
     {
         Http::fake(['*' => Http::response()]);
         $this->expectException(IllegalStateException::class);
-        $issueDto = new IssueNFSeDTO(
-            gatewayPaymentId: '1234',
-            price: '4051',
-            paymentDate: now()->subMonth(),
-            customer: $this->fakeNfseCustomer()
-        );
 
-        NFSe::generate($issueDto);
+        $payment = Payment::factory()->create(['date' => now()->subMonth()]);
+
+        NFSe::generate($payment);
 
         Http::assertSentCount(0);
     }

@@ -3,6 +3,7 @@
 namespace NFSe\Http;
 
 use NFSe\NFSe;
+use NFSe\Models\Payment;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use NFSe\Models\PaymentNfse;
@@ -20,7 +21,7 @@ class NfseWebhookController extends Controller
             return;
         }
 
-        $nfse = PaymentNfse::findByRps($data['rps']);
+        $nfse = $this->getNfse($data['rps']);
 
         if (is_null($nfse)) {
             return;
@@ -50,5 +51,16 @@ class NfseWebhookController extends Controller
             'code' => $code,
             'message' => $message,
         ]);
+    }
+
+    private function getNfse(string $rps): ?PaymentNfse
+    {
+        if ($payment = Payment::find($rps)) {
+            if ($payment->paymentNfse) {
+                return $payment->paymentNfse;
+            }
+        }
+
+        return PaymentNfse::findByRps($rps);
     }
 }

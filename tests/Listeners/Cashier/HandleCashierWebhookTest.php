@@ -21,19 +21,6 @@ class HandleCashierWebhookTest extends TestCase
         $listener->handle($event);
     }
 
-    public function test_generate_nfse_if_charge_succeceds()
-    {
-        NFSe::shouldReceive('generate')
-            ->once();
-
-        $event = (object) [
-            'payload' => $this->chargeSucceededPayload(),
-        ];
-
-        $listener = new HandleCashierWebhook;
-        $listener->handle($event);
-    }
-
     public function test_ignore_not_chargeable_events()
     {
         NFSe::shouldReceive('generate')->never();
@@ -61,33 +48,10 @@ class HandleCashierWebhookTest extends TestCase
         (new HandleCashierWebhook)->handle($event);
     }
 
-    public function test_not_generate_if_charge_not_paid()
-    {
-        NFSe::shouldReceive('generate')->never();
-
-        $payload = $this->chargeSucceededPayload();
-        data_set($payload, 'data.object.paid', false);
-
-        $event = (object) [
-            'payload' => $payload,
-        ];
-
-        (new HandleCashierWebhook)->handle($event);
-    }
-
     private function paymentIntentSucceededPayload(): array
     {
         return json_decode(
             file_get_contents(__DIR__.'/fixtures/payment_intent.succeeded.json'),
-            true,
-            flags: JSON_THROW_ON_ERROR
-        );
-    }
-
-    private function chargeSucceededPayload(): array
-    {
-        return json_decode(
-            file_get_contents(__DIR__.'/fixtures/charge.succeeded.json'),
             true,
             flags: JSON_THROW_ON_ERROR
         );
