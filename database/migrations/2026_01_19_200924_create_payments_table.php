@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('gateway_payment_id')->unique();
             $table->string('price');
             $table->timestamp('date');
-            $table->json('customer');
+            $table->foreignId('user_id');
 
             $table->timestamps();
             $table->softDeletes();

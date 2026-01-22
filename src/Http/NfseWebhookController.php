@@ -24,27 +24,26 @@ class NfseWebhookController extends Controller
             return;
         }
 
-        $nfse = $this->getNfse($data['rps']);
-
-        if (is_null($nfse)) {
+        $payment = Payment::find(Arr::get($data, 'rps'));
+        if (is_null($payment)) {
             return;
         }
 
         if ($request->status == 'processado') {
-            $nfse->issue(
+            $payment->paymentNfse->issue(
                 $data['nfse']['numero'],
                 $data['nfse']['chave'],
                 $data['data_emissao']
             );
         } else {
             // retry on first error only
-            if ($nfse->errors()->count() === 0) {
-                NFSe::retryOnError($nfse);
+            if ($payment->paymentNfse->errors()->count() === 0) {
+                NFSe::retryOnError($payment);
             } else {
-                $nfse->fail();
+                $payment->paymentNfse->fail();
             }
 
-            $this->failError($nfse, $request->response[0]['codigo'], $request->response[0]['mensagem']);
+            $this->failError($payment->paymentNfse, $request->response[0]['codigo'], $request->response[0]['mensagem']);
         }
     }
 
@@ -54,16 +53,5 @@ class NfseWebhookController extends Controller
             'code' => $code,
             'message' => $message,
         ]);
-    }
-
-    private function getNfse(string $rps): ?PaymentNfse
-    {
-        if ($payment = Payment::find($rps)) {
-            if ($payment->paymentNfse) {
-                return $payment->paymentNfse;
-            }
-        }
-
-        return PaymentNfse::findByRps($rps);
     }
 }

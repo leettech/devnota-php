@@ -6,7 +6,6 @@ use NFSe\NFSeCustomer;
 use NFSe\Casts\NFSeCustomerCast;
 use Illuminate\Database\Eloquent\Model;
 use NFSe\Models\PaymentNfse\NFSePayload;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use NFSe\Models\PaymentNfse\PaymentNfseStatus;
 use NFSe\Database\Factories\PaymentNfseFactory;
@@ -56,25 +55,9 @@ class PaymentNfse extends Model
         return PaymentNfseFactory::new();
     }
 
-    public static function findByRps(string $rps)
-    {
-        return PaymentNfse::where('rps', $rps)->first();
-    }
-
     public function errors()
     {
         return $this->hasMany(PaymentNfseError::class);
-    }
-
-    public function scopeProcessing(Builder $query)
-    {
-        return $query->where('status', PaymentNfseStatus::Processing);
-    }
-
-    public function scopeThisMonth(Builder $query)
-    {
-        return $query->where('created_at', '>=', now()->startOfMonth())
-            ->where('created_at', '<=', now()->endOfMonth());
     }
 
     public function isIssued()

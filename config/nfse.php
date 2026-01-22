@@ -12,6 +12,9 @@ return [
     'dolar_fallback_value' => 5.3,
     'callback_route' => env('NFSE_CALLBACK_URL'),
 
+    'models' => [
+        'user' => null,
+    ],
     'config' => [
         'rps' => [
             'serie' => null,

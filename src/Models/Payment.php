@@ -2,7 +2,6 @@
 
 namespace NFSe\Models;
 
-use NFSe\Casts\NFSeCustomerCast;
 use Illuminate\Database\Eloquent\Model;
 use NFSe\Database\Factories\PaymentFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -25,12 +24,11 @@ class Payment extends Model
         'gateway_payment_id',
         'date',
         'price',
-        'customer',
+        'user_id',
     ];
 
     protected $casts = [
         'date' => 'datetime',
-        'customer' => NFSeCustomerCast::class,
     ];
 
     protected $appends = [
@@ -45,6 +43,16 @@ class Payment extends Model
     public function nfse()
     {
         return $this->hasOne(PaymentNfse::class);
+    }
+
+    public function user()
+    {
+        $userModel = config('nfse.models.user');
+
+        /** @var \Illuminate\Database\Eloquent\Model $user */
+        $user = new $userModel;
+
+        return $this->belongsTo(config('nfse.models.user'), 'user_id', $user->getKeyName());
     }
 
     protected function paymentNfse(): Attribute

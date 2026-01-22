@@ -5,6 +5,7 @@ namespace NFSe\Tests;
 use NFSe\NFSeCustomer;
 use Illuminate\Support\Arr;
 use NFSe\NFSeServiceProvider;
+use NFSe\Tests\Fixtures\User;
 use Illuminate\Support\Facades\File;
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -16,6 +17,8 @@ abstract class TestCase extends Orchestra
 
         $this->setUpDatabase($this->app);
         $this->setUpNfseConfig();
+
+        config()->set('nfse.models.user', User::class);
     }
 
     protected function getPackageProviders($app): array
@@ -36,8 +39,14 @@ abstract class TestCase extends Orchestra
         ]);
 
         $migrationPath = __DIR__.'/../database/migrations';
+        $testMigrationPath = __DIR__.'/database/migrations';
 
-        $files = collect(File::files($migrationPath))
+        $migrations = [
+            ...File::files($migrationPath),
+            ...File::files($testMigrationPath),
+        ];
+
+        $files = collect($migrations)
             ->sortBy(fn ($file) => $file->getFilename());
 
         foreach ($files as $file) {

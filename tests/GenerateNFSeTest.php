@@ -40,7 +40,7 @@ class GenerateNFSeTest extends TestCase
         $this->expectException(IllegalStateException::class);
 
         $payment = Payment::factory()->create();
-        $nfse = PaymentNfse::factory()->issued()->toPayment($payment)->create();
+        PaymentNfse::factory()->issued()->toPayment($payment)->create();
 
         NFSe::generate($payment);
 
@@ -57,5 +57,20 @@ class GenerateNFSeTest extends TestCase
         NFSe::generate($payment);
 
         Http::assertSentCount(0);
+
+        $this->assertNull($payment->refresh()->paymentNfse);
+    }
+
+    public function test_dont_generate_nfse_for_zero_value_payments()
+    {
+        Http::fake(['*' => Http::response()]);
+        $this->expectException(IllegalStateException::class);
+
+        $payment = Payment::factory()->create(['price' => 0]);
+
+        NFSe::generate($payment);
+
+        Http::assertSentCount(0);
+        $this->assertNull($payment->refresh()->paymentNfse);
     }
 }

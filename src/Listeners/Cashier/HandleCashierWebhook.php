@@ -4,7 +4,6 @@ namespace NFSe\Listeners\Cashier;
 
 use NFSe\NFSe;
 use Carbon\Carbon;
-use NFSe\NFSeCustomer;
 use NFSe\Models\Payment;
 use Illuminate\Support\Arr;
 use NFSe\Support\DolarHoje;
@@ -14,53 +13,39 @@ class HandleCashierWebhook
 {
     public function handle($event)
     {
-        if (! in_array(Arr::get($event->payload, 'type', ''), ['payment_intent.succeeded'])) {
+        if (! $this->isPaymentSucceeded($event)) {
             return;
         }
 
-        $charge = $this->getCharge($event);
+        $charge = $this->extractCharge($event);
 
-        if (is_null($charge)) {
+        if (! $this->isValidCharge($charge)) {
             return;
         }
 
-        if (! Arr::get($charge, 'paid', false)) {
-            return;
-        }
+        $user = $this->resolveUser($charge);
 
-        $paymentId = Arr::get($charge, 'payment_intent');
-        $billingDetails = $this->fillBilling($charge);
-
-        if (! is_array($billingDetails)) {
-            nfseLogger()->info('Payment without billing information', ['charge' => $charge]);
-
-            return;
-        }
-
-        if (! NFSe::canIssueNFSeFor($billingDetails['email'])) {
+        if (! $user || ! NFSe::canIssueNFSeFor($user->email)) {
             return;
         }
 
         $amount = Arr::get($charge, 'amount_captured');
         $currency = Arr::get($charge, 'currency');
-        $paidAt = Carbon::createFromTimestamp(Arr::get($charge, 'created'));
 
         $price = $amount / 100;
 
-        $customer = NFSeCustomer::fromStripe($billingDetails);
-
         $payment = Payment::firstOrCreate([
-            'gateway_payment_id' => $paymentId,
+            'gateway_payment_id' => Arr::get($charge, 'payment_intent'),
         ], [
-            'customer' => $customer,
-            'date' => $paidAt,
+            'user_id' => $user->getKey(),
+            'date' => Carbon::createFromTimestamp(Arr::get($charge, 'created')),
             'price' => (string) DolarHoje::convertIf(str($currency)->upper()->toString() === 'USD', $price),
         ]);
 
         NFSe::generate($payment);
     }
 
-    private function getCharge($event)
+    private function extractCharge($event)
     {
         if (Arr::get($event->payload, 'type') === 'payment_intent.succeeded') {
             return Arr::get($event->payload, 'data.object.charges.data.0');
@@ -69,8 +54,6 @@ class HandleCashierWebhook
         return null;
     }
 
-    // TODO: Achar estrutura mnelhor
-    // muito acoplado com o linklist
     public static function user(): ?string
     {
         $model = config('nfse.models.user');
@@ -90,25 +73,39 @@ class HandleCashierWebhook
         return $model;
     }
 
-    private function fillBilling($charge)
+    private function isPaymentSucceeded($event): bool
     {
-        $billingDetails = Arr::get($charge, 'billing_details');
+        return Arr::get($event->payload, 'type') === 'payment_intent.succeeded';
+    }
 
-        if (is_null(Arr::get($billingDetails, 'email'))) {
-            $user = self::user();
-
-            if (is_null($user)) {
-                return;
-            }
-            $email = $user::query()->where('stripe_id', Arr::get($charge, 'customer'))->first()?->email;
-
-            if (is_null($email)) {
-                return;
-            }
-
-            $billingDetails['email'] = $email;
+    private function isValidCharge(?array $charge): bool
+    {
+        if (is_null($charge)) {
+            return false;
         }
 
-        return $billingDetails;
+        return Arr::get($charge, 'paid', false) === true;
+    }
+
+    private function resolveUser(array $charge): ?Model
+    {
+        $userModel = self::user();
+
+        if (! $userModel) {
+            return null;
+        }
+
+        $user = $userModel::query()
+            ->where('stripe_id', Arr::get($charge, 'customer'))
+            ->first();
+
+        if (! $user) {
+            nfseLogger()->info(
+                'User not found. It is not possible to create a payment without billing information.',
+                ['charge' => $charge]
+            );
+        }
+
+        return $user;
     }
 }

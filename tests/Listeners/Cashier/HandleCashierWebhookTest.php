@@ -4,6 +4,7 @@ namespace Tests\NFSe\Listeners\Cashier;
 
 use NFSe\NFSe;
 use NFSe\Tests\TestCase;
+use NFSe\Tests\Fixtures\User;
 use NFSe\Listeners\Cashier\HandleCashierWebhook;
 
 class HandleCashierWebhookTest extends TestCase
@@ -13,12 +14,23 @@ class HandleCashierWebhookTest extends TestCase
         NFSe::shouldReceive('generate')
             ->once();
 
-        $event = (object) [
-            'payload' => $this->paymentIntentSucceededPayload(),
-        ];
+        $payload = $this->paymentIntentSucceededPayload();
+        $customerId = data_get($payload, 'data.object.charges.data.0.customer');
+
+        $user = User::factory()->create(['stripe_id' => $customerId]);
 
         $listener = new HandleCashierWebhook;
-        $listener->handle($event);
+        $listener->handle((object) [
+            'payload' => $this->paymentIntentSucceededPayload(),
+        ]);
+
+        $user->refresh();
+
+        $payment = $user->payments()->first();
+
+        $this->assertNotNull($payment);
+
+        $this->assertEquals(data_get($payload, 'data.object.id'), $payment->gateway_payment_id);
     }
 
     public function test_ignore_not_chargeable_events()

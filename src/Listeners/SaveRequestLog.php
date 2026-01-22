@@ -14,11 +14,11 @@ class SaveRequestLog implements ShouldQueue
     public function handle(RequestSent $event)
     {
         NfseRequestLog::create([
-             'url' => $event->url,
-             'body' => $event->body,
-             'method' => $event->method,
-             'headers' => $event->headers,
-             'response' => $event->response,
+            'url' => $event->url,
+            'body' => $event->body,
+            'method' => $event->method,
+            'headers' => $event->headers,
+            'response' => $event->response,
          ]);
     }
 }

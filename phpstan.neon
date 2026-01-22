@@ -9,3 +9,6 @@ parameters:
     excludePaths:
         - vendor
     reportUnmatchedIgnoredErrors: true
+    ignoreErrors:
+        - message: '#Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$email#'
+          path: src/Listeners/Cashier/HandleCashierWebhook.php

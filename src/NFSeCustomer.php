@@ -2,6 +2,7 @@
 
 namespace NFSe;
 
+use NFSe\Models\Payment;
 use Illuminate\Support\Arr;
 use NFSe\Support\StrHelper;
 
@@ -62,6 +63,26 @@ final class NFSeCustomer
             documentType: 'email',
             // taxId: Arr::get($billingDetails, 'tax_id'),
             // documentType: Arr::get($billingDetails, 'tax_id_type', 'email'),
+            uf: null,
+            cityIbgeCode: null,
+            addressNumber: null,
+            neighborhood: null,
+        );
+    }
+
+    public static function fromPayment(Payment $payment)
+    {
+        $user = $payment->user()->first();
+
+        return new self(
+            name: $user->name,
+            email: $user->email,
+            phone: null,
+            zipcode: null,
+            address: null,
+            complement: null,
+            taxId: null,
+            documentType: 'email',
             uf: null,
             cityIbgeCode: null,
             addressNumber: null,

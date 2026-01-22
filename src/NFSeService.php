@@ -5,20 +5,15 @@ namespace NFSe;
 use Carbon\Carbon;
 use NFSe\Models\Payment;
 use NFSe\Events\RequestSent;
-use NFSe\Models\PaymentNfse;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use NFSe\Exceptions\IllegalStateException;
 
 class NFSeService
 {
-    public function retryOnError(Payment|PaymentNfse $payment)
+    public function retryOnError(Payment $payment)
     {
-        if ($payment instanceof Payment) {
-            $nfse = $payment->paymentNfse;
-        } else {
-            $nfse = $payment;
-        }
+        $nfse = $payment->paymentNfse;
 
         if (is_null($nfse)) {
             return;
@@ -33,25 +28,20 @@ class NFSeService
     public function generate(Payment $payment)
     {
         throw_unless(Carbon::parse($payment->date)->isSameMonth(now()), new IllegalStateException('NFSe can only be generated in the same month the payment was confirmed'));
+        throw_unless($payment->price > 0, new IllegalStateException('NFSe cannot be generated for payments with zero or negative value.'));
 
         if (! is_null($payment->paymentNfse)) {
-            throw_unless($payment->paymentNfse->isProcessing(), new IllegalStateException(__('We should not generate a nfse more than once')));
+            throw_unless($payment->paymentNfse->isProcessing(), new IllegalStateException('We should not generate a nfse more than once'));
         }
 
-        // Em dados antigos, o rps não é igual ao id do payment
-        // por isso a verificação dupla
-        // podemos ter rps: 10 e payment_id: 1
-        // nesse caso não podemos verificar apenas o rps
         $nfse = $payment->nfse()->firstOrCreate([
-            'rps' => $payment->id,
-            'payment_id' => $payment->id,
-        ],
+                'rps' => $payment->id
+            ],
             [
-                // todo: remover depois de migrar os dados e apagar as colunas
                 'payment_date' => $payment->date,
                 'gateway_payment_id' => $payment->gateway_payment_id,
                 'price' => $payment->price,
-                'customer' => $payment->customer,
+                'customer' => NFSeCustomer::fromPayment($payment),
             ]);
 
         $payload = NFSeRequestPayload::make(new GenerateNFSeTemplate($nfse));
@@ -61,7 +51,9 @@ class NFSeService
 
     public function consult(Payment $payment)
     {
-        if (is_null($payment->paymentNfse)) {
+        $nfse = $payment->paymentNfse;
+
+        if (is_null($nfse)) {
             return;
         }
 
@@ -72,7 +64,9 @@ class NFSeService
 
     public function cancel(Payment $payment)
     {
-        if (is_null($payment->paymentNfse)) {
+        $nfse = $payment->paymentNfse;
+
+        if (is_null($nfse)) {
             return;
         }
 
@@ -103,7 +97,7 @@ class NFSeService
 
         return tap(
             Http::withHeaders($headers)->post($url, $body),
-            function (Response $res) use ($url, $body, $headers) {
+            function (Response $res) use ($url, $headers, $body) {
                 RequestSent::dispatch(
                     $url,
                     'post',
