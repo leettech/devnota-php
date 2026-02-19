@@ -22,7 +22,7 @@ class NFSeService
         $template = new GenerateNFSeTemplate($nfse);
         $payload = NFSeRequestPayload::make($template);
 
-        return $this->post(NFSeAction::Generate, $payload);
+        return $this->post('gerar', $payload);
     }
 
     public function generate(Payment $payment)
@@ -44,54 +44,17 @@ class NFSeService
 
         $payload = NFSeRequestPayload::make(new GenerateNFSeTemplate($nfse));
 
-        return $this->post(NFSeAction::Generate, $payload);
+        return $this->post('gerar', $payload);
     }
 
-    public function consult(Payment $payment)
+    private function post(string $action, $body)
     {
-        $nfse = $payment->paymentNfse;
-
-        if (is_null($nfse)) {
-            return;
-        }
-
-        $payload = NFSeRequestPayload::make(ConsultNFSeTemplate::create($payment->paymentNfse));
-
-        return $this->post(NFSeAction::Consult, $payload);
-    }
-
-    public function cancel(Payment $payment)
-    {
-        $nfse = $payment->paymentNfse;
-
-        if (is_null($nfse)) {
-            return;
-        }
-
-        $payload = NFSeRequestPayload::make(CancelNFSeTemplate::create($payment->paymentNfse));
-
-        return $this->post(NFSeAction::Cancel, $payload);
-    }
-
-    public function retryStucked(Payment $payment)
-    {
-        $this->consult($payment);
-        $this->generate($payment);
-    }
-
-    private function post(NFSeAction $action, $body)
-    {
-        $url = sprintf('%s/%s/%s', config('nfse.base_uri'), 'nfse', $action->value);
+        $url = sprintf('%s/%s/%s', config('nfse.base_uri'), 'nfse', $action);
 
         $headers = [
             'Company' => config('nfse.config.prestador.cnpj'),
             'Authorization' => sprintf('Bearer %s', config('nfse.token')),
         ];
-        nfseLogger()->info('nfse request', [
-            'url' => $url,
-            'body' => $body,
-            'headers' => $headers,
-        ]);
 
         return tap(
             Http::withHeaders($headers)->post($url, $body),
@@ -103,7 +66,6 @@ class NFSeService
                     $body,
                     $res->json() ?? []
                 );
-                nfseLogger()->info('nfse response', $res->json() ?? []);
             }
         );
     }
