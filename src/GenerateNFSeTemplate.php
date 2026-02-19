@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use NFSe\Models\PaymentNfse;
 use NFSe\Support\HasArrayGet;
 use Illuminate\Contracts\Support\Arrayable;
+use NFSe\Models\PaymentNfse\NFSePayload;
 
 class GenerateNFSeTemplate implements Arrayable
 {
@@ -28,6 +29,6 @@ class GenerateNFSeTemplate implements Arrayable
 
     public function template()
     {
-        return $this->nfse->payload($this->emittedAt);
+        return (new NFSePayload($this->nfse, $this->emittedAt))->toArray();
     }
 }

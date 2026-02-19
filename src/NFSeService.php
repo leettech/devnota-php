@@ -19,10 +19,11 @@ class NFSeService
             return;
         }
 
-        $template = new GenerateNFSeTemplate($nfse);
-        $payload = NFSeRequestPayload::make($template);
-
-        return $this->post('gerar', $payload);
+        return $this->post('gerar', [
+            'ambiente' => config('nfse.environment'),
+            'callback' => config('nfse.callback_route', null) ?? route('nfse.webhook.store'),
+            'rps' => (new GenerateNFSeTemplate($nfse))->toArray(),
+        ]);
     }
 
     public function generate(Payment $payment)
@@ -42,9 +43,11 @@ class NFSeService
             'customer' => NFSeCustomer::fromPayment($payment),
         ]);
 
-        $payload = NFSeRequestPayload::make(new GenerateNFSeTemplate($nfse));
-
-        return $this->post('gerar', $payload);
+        return $this->post('gerar', [
+            'ambiente' => config('nfse.environment'),
+            'callback' => config('nfse.callback_route', null) ?? route('nfse.webhook.store'),
+            'rps' => (new GenerateNFSeTemplate($nfse))->toArray(),
+        ]);
     }
 
     private function post(string $action, $body)
