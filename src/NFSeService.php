@@ -49,7 +49,7 @@ class NFSeService
 
         return $this->http->post('gerar', [
             'ambiente' => config('nfse.environment'),
-            'callback' => config('nfse.callback_route', null) ?? route('nfse.webhook.store'),
+            'callback' => route('nfse.webhook.store'),
             'rps' => (new GenerateNFSeTemplate($nfse))->toArray(),
         ]);
     }
@@ -73,7 +73,7 @@ class NFSeService
 
         return $this->http->post('gerar', [
             'ambiente' => config('nfse.environment'),
-            'callback' => config('nfse.callback_route', null) ?? route('nfse.webhook.store'),
+            'callback' => route('nfse.webhook.store'),
             'rps' => (new GenerateNFSeTemplate($nfse))->toArray(),
         ]);
     }
