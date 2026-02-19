@@ -24,7 +24,12 @@ class NfseWebhookController extends Controller
             return;
         }
 
-        $payment = Payment::find(Arr::get($data, 'rps'));
+        $nfse = PaymentNfse::find(Arr::get($data, 'rps'));
+        if (is_null($nfse)) {
+            return;
+        }
+
+        $payment = Payment::find($nfse->payment_id);
         if (is_null($payment)) {
             return;
         }

@@ -28,9 +28,8 @@ class GenerateNFSeTest extends TestCase
         $nfse = PaymentNfse::first();
 
         Http::assertSentCount(1);
-        Http::assertSent(fn (Request $request) => $request->data()['rps']['identificacao']['numero'] == $payment->id);
+        Http::assertSent(fn (Request $request) => $request->data()['rps']['identificacao']['numero'] == $nfse->id);
         $this->assertEquals(PaymentNfseStatus::Processing, $nfse->status);
-        $this->assertEquals($payment->id, $nfse->rps);
         $this->assertEquals($payment->id, $nfse->payment_id);
     }
 

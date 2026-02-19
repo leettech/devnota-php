@@ -15,7 +15,7 @@ class CancelNFSeTemplateTest extends TestCase
 
     public function test_template()
     {
-        $nfse = PaymentNfse::factory()->make(['rps' => 1, 'number' => '12345']);
+        $nfse = PaymentNfse::factory()->make(['id' => 1, 'number' => '12345']);
         $template = new CancelNFSeTemplate($nfse);
 
         $this->assertEquals('RPS_1', $template->get('Pedido.InfPedidoCancelamento._attributes.Id'));
@@ -24,7 +24,7 @@ class CancelNFSeTemplateTest extends TestCase
 
     public function test_to_xml()
     {
-        $nfse = PaymentNfse::factory()->make(['rps' => 1, 'number' => '12345']);
+        $nfse = PaymentNfse::factory()->make(['id' => 1, 'number' => '12345']);
 
         $template = new CancelNFSeTemplate($nfse);
 

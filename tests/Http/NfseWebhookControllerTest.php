@@ -19,7 +19,7 @@ class NfseWebhookControllerTest extends TestCase
             'status' => 'processado',
             'response' => [
                 [
-                    'rps' => $nfse->rps,
+                    'rps' => $nfse->id,
                     'numero' => '41232',
                     'data_emissao' => '2025-12-09T17:57:01-03:00',
                     'nfse' => [
@@ -55,7 +55,7 @@ class NfseWebhookControllerTest extends TestCase
             'status' => 'processado_com_erro',
             'response' => [
                 [
-                    'rps' => $nfse->rps,
+                    'rps' => $nfse->id,
                     'codigo' => 'RNG6110',
                     'correcao' => null,
                     'mensagem' => 'Falha no Schame Xml',
@@ -85,7 +85,7 @@ class NfseWebhookControllerTest extends TestCase
             'status' => 'processado_com_erro',
             'response' => [
                 [
-                    'rps' => $nfse->rps,
+                    'rps' => $nfse->id,
                     'codigo' => 'RNG6110',
                     'correcao' => null,
                     'mensagem' => 'Falha no Schame Xml',

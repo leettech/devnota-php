@@ -15,7 +15,7 @@ final class NFSePayload
     {
         return tap([
             'identificacao' => [
-                'numero' => (int) $this->nfse->rps,
+                'numero' => (int) $this->nfse->id,
                 'serie' => config('nfse.config.rps.serie'),
                 'tipo' => config('nfse.config.rps.tipo'),
             ],

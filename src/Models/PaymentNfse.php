@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $id
- * @property string $rps
  * @property string $price
  * @property string $verification_code
  * @property string $issue_date
@@ -27,7 +26,6 @@ class PaymentNfse extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'rps',
         'price',
         'verification_code',
         'number',
