@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Client\PendingRequest;
 use NFSe\Models\Payment;
 use NFSe\Events\RequestSent;
+use GuzzleHttp\Middleware;
 use Illuminate\Support\Facades\Http;
 use NFSe\Exceptions\IllegalStateException;
 use Psr\Http\Message\RequestInterface;
@@ -22,21 +23,21 @@ class NFSeService
         $this->http = Http::baseUrl(config('nfse.base_uri') . '/nfse')->withHeaders([
             'Company' => config('nfse.config.prestador.cnpj'),
             'Authorization' => sprintf('Bearer %s', config('nfse.token')),
-        ])->withRequestMiddleware(function (RequestInterface $request) {
+        ])->withMiddleware(Middleware::mapRequest(function (RequestInterface $request) {
             $this->lastRequest = $request;
 
             return $request;
-        })->withResponseMiddleware(function (ResponseInterface $response) {
+        }))->withMiddleware(Middleware::mapResponse(function (ResponseInterface $response) {
             RequestSent::dispatch(
                 (string) $this->lastRequest?->getUri(),
-                $this->lastRequest?->getMethod() ?? '',
+                strtolower($this->lastRequest?->getMethod() ?? ''),
                 $this->lastRequest?->getHeaders() ?? [],
                 json_decode((string) $this->lastRequest?->getBody(), true) ?? [],
                 json_decode($response->getBody(), true) ?? []
             );
 
             return $response;
-        });
+        }));
     }
 
     public function retryOnError(Payment $payment)
