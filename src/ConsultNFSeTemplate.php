@@ -31,7 +31,7 @@ class ConsultNFSeTemplate implements Arrayable
     {
         return [
             'identificacao_rps' => [
-                'numero' => $this->nfse->rps,
+                'numero' => $this->nfse->id,
                 'serie' => 1,
                 'tipo' => 1,
             ],

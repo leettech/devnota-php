@@ -15,7 +15,7 @@ class ConsultNFSeTemplateTest extends TestCase
 
     public function test_template()
     {
-        $payment = PaymentNfse::factory()->make(['rps' => 142123]);
+        $payment = PaymentNfse::factory()->make(['id' => 142123]);
         $template = new ConsultNFSeTemplate($payment);
 
         $this->assertEquals(142123, $template->get('identificacao_rps.numero'));
@@ -23,7 +23,7 @@ class ConsultNFSeTemplateTest extends TestCase
 
     public function test_to_array()
     {
-        $payment = PaymentNfse::factory()->make(['rps' => 142123]);
+        $payment = PaymentNfse::factory()->make(['id' => 142123]);
         $template = new ConsultNFSeTemplate($payment);
 
         $expected = [

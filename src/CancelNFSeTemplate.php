@@ -50,7 +50,7 @@ class CancelNFSeTemplate implements Arrayable
                 'InfPedidoCancelamento' => [
                     '_attributes' => [
                         'xmlns' => 'http://www.abrasf.org.br/ABRASF/arquivos/nfse.xsd',
-                        'Id' => sprintf('RPS_%s', $this->nfse->rps),
+                        'Id' => sprintf('RPS_%s', $this->nfse->id),
                     ],
                     'IdentificacaoNfse' => [
                         'Numero' => $this->nfse->number,

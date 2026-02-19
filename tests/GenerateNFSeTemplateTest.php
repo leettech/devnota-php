@@ -11,12 +11,12 @@ class GenerateNFSeTemplateTest extends TestCase
 {
     public function test_template()
     {
-        $nfse = PaymentNfse::factory()->make([
+        $nfse = PaymentNfse::factory()->create([
             'customer' => $this->customerData()->toArray(),
         ]);
         $template = new GenerateNFSeTemplate($nfse);
 
-        $this->assertEquals($nfse->rps, $template->get('identificacao.numero'));
+        $this->assertEquals($nfse->id, $template->get('identificacao.numero'));
         $this->assertEquals($nfse->price, $template->get('servico.valores.valor_servicos'));
         $this->assertEquals('Company ZeroOne', $template->get('tomador.nome'));
         $this->assertEquals('contact@zeroone.com', $template->get('tomador.email'));
@@ -137,7 +137,7 @@ class GenerateNFSeTemplateTest extends TestCase
     public function test_to_array()
     {
         $nfse = PaymentNfse::factory()->make([
-            'rps' => 1,
+            'id' => 1,
             'customer' => $this->customerData(phone: '11982331122', address: 'Rua dos Alfenereos, 4')->toArray(),
         ]);
         $template = new GenerateNFSeTemplate($nfse);

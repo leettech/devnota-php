@@ -35,14 +35,12 @@ class NFSeService
         }
 
         $nfse = $payment->nfse()->firstOrCreate([
-                'rps' => $payment->id
-            ],
-            [
-                'payment_date' => $payment->date,
-                'gateway_payment_id' => $payment->gateway_payment_id,
-                'price' => $payment->price,
-                'customer' => NFSeCustomer::fromPayment($payment),
-            ]);
+            'payment_id' => $payment->id,
+        ], [
+            'payment_date' => $payment->date,
+            'price' => $payment->price,
+            'customer' => NFSeCustomer::fromPayment($payment),
+        ]);
 
         $payload = NFSeRequestPayload::make(new GenerateNFSeTemplate($nfse));
 

@@ -13,12 +13,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $id
- * @property string $rps
  * @property string $price
  * @property string $verification_code
  * @property string $issue_date
  * @property string $number
- * @property string $gateway_payment_id
  * @property PaymentNfseStatus $status
  * @property string $payment_date
  * @property NFSeCustomer $customer
@@ -28,7 +26,6 @@ class PaymentNfse extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'rps',
         'price',
         'verification_code',
         'number',
@@ -36,7 +33,6 @@ class PaymentNfse extends Model
         'status',
         'customer',
         'payment_date',
-        'gateway_payment_id',
     ];
 
     protected $casts = [
