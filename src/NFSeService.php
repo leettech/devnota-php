@@ -3,14 +3,42 @@
 namespace NFSe;
 
 use Carbon\Carbon;
+use Illuminate\Http\Client\PendingRequest;
 use NFSe\Models\Payment;
 use NFSe\Events\RequestSent;
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use NFSe\Exceptions\IllegalStateException;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class NFSeService
 {
+    private PendingRequest $http;
+
+    private ?RequestInterface $lastRequest = null;
+
+    public function __construct()
+    {
+        $this->http = Http::baseUrl(config('nfse.base_uri') . '/nfse')->withHeaders([
+            'Company' => config('nfse.config.prestador.cnpj'),
+            'Authorization' => sprintf('Bearer %s', config('nfse.token')),
+        ])->withRequestMiddleware(function (RequestInterface $request) {
+            $this->lastRequest = $request;
+
+            return $request;
+        })->withResponseMiddleware(function (ResponseInterface $response) {
+            RequestSent::dispatch(
+                (string) $this->lastRequest?->getUri(),
+                $this->lastRequest?->getMethod() ?? '',
+                $this->lastRequest?->getHeaders() ?? [],
+                json_decode((string) $this->lastRequest?->getBody(), true) ?? [],
+                json_decode($response->getBody(), true) ?? []
+            );
+
+            return $response;
+        });
+    }
+
     public function retryOnError(Payment $payment)
     {
         $nfse = $payment->paymentNfse;
@@ -19,7 +47,7 @@ class NFSeService
             return;
         }
 
-        return $this->post('gerar', [
+        return $this->http->post('gerar', [
             'ambiente' => config('nfse.environment'),
             'callback' => config('nfse.callback_route', null) ?? route('nfse.webhook.store'),
             'rps' => (new GenerateNFSeTemplate($nfse))->toArray(),
@@ -43,33 +71,10 @@ class NFSeService
             'customer' => NFSeCustomer::fromPayment($payment),
         ]);
 
-        return $this->post('gerar', [
+        return $this->http->post('gerar', [
             'ambiente' => config('nfse.environment'),
             'callback' => config('nfse.callback_route', null) ?? route('nfse.webhook.store'),
             'rps' => (new GenerateNFSeTemplate($nfse))->toArray(),
         ]);
-    }
-
-    private function post(string $action, $body)
-    {
-        $url = sprintf('%s/%s/%s', config('nfse.base_uri'), 'nfse', $action);
-
-        $headers = [
-            'Company' => config('nfse.config.prestador.cnpj'),
-            'Authorization' => sprintf('Bearer %s', config('nfse.token')),
-        ];
-
-        return tap(
-            Http::withHeaders($headers)->post($url, $body),
-            function (Response $res) use ($url, $headers, $body) {
-                RequestSent::dispatch(
-                    $url,
-                    'post',
-                    $headers,
-                    $body,
-                    $res->json() ?? []
-                );
-            }
-        );
     }
 }
