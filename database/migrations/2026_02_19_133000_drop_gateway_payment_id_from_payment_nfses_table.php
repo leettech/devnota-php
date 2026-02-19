@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('payment_nfses', function (Blueprint $table) {
-            $table->string('gateway_payment_id')->index()->after('rps');
+            $table->string('gateway_payment_id')->index();
         });
     }
 };
