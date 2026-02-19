@@ -11,6 +11,8 @@ Número interno definido pela aplicação cliente para identificar a nota fiscal
 - Não precisa ser sequencial.
 - Em caso de erro na emissão, o mesmo RPS pode ser reutilizado. Um novo RPS só é necessário após emissão bem-sucedida.
 
+> **Neste pacote**, o RPS é o próprio `id` do model `PaymentNfse`. Não existe coluna separada — o `id` auto-incrementado da tabela `payment_nfses` é enviado como número do RPS no payload da requisição e utilizado para localizar o registro via webhook.
+
 ### Número da Nota Fiscal
 
 Número gerado pelo órgão emissor (AN) de forma **sequencial e automática**, independente do RPS informado.
