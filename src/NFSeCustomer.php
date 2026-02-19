@@ -48,28 +48,6 @@ final class NFSeCustomer
         );
     }
 
-    public static function fromStripe(array $billingDetails): self
-    {
-        return new self(
-            name: Arr::get($billingDetails, 'name') ?? '',
-            email: Arr::get($billingDetails, 'email'),
-            phone: Arr::get($billingDetails, 'phone'),
-            zipcode: Arr::get($billingDetails, 'address.postal_code'),
-            address: Arr::get($billingDetails, 'address.line_1'),
-            complement: Arr::get($billingDetails, 'address.line_2'),
-            // TODO: não consegui testar como vem os dados de tax_id
-            // por isso esta hardcoded
-            taxId: null,
-            documentType: 'email',
-            // taxId: Arr::get($billingDetails, 'tax_id'),
-            // documentType: Arr::get($billingDetails, 'tax_id_type', 'email'),
-            uf: null,
-            cityIbgeCode: null,
-            addressNumber: null,
-            neighborhood: null,
-        );
-    }
-
     public static function fromPayment(Payment $payment)
     {
         $user = $payment->user()->first();
