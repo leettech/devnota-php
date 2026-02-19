@@ -63,12 +63,13 @@ class NFSeService
             throw_unless($payment->paymentNfse->isProcessing(), new IllegalStateException('We should not generate a nfse more than once'));
         }
 
+        $customer = NFSeCustomer::fromPayment($payment);
         $nfse = $payment->nfse()->firstOrCreate([
             'payment_id' => $payment->id,
         ], [
             'payment_date' => $payment->date,
             'price' => $payment->price,
-            'customer' => NFSeCustomer::fromPayment($payment),
+            'customer' => $customer,
         ]);
 
         return $this->http->post('gerar', [
