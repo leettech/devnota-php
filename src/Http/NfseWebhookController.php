@@ -36,14 +36,7 @@ class NfseWebhookController extends Controller
         if ($request->status == 'processado') {
             $nfse->issue($data['nfse']['numero'], $data['nfse']['chave'], $data['data_emissao']);
         } else {
-            // retry on first error only
-            if ($nfse->errors()->count() === 0) {
-                $customer = NFSeCustomer::fromPayment($payment);
-                NFSe::generate($nfse, $customer);
-            } else {
-                $nfse->fail();
-            }
-                
+            $nfse->fail();
             $this->failError($nfse, $request->response[0]['codigo'], $request->response[0]['mensagem']);
         }
     }

@@ -44,30 +44,6 @@ class NfseWebhookControllerTest extends TestCase
         $this->assertEquals('2025-12-09 17:57:01', $nfse->issue_date);
     }
 
-    public function test_register_nfse_error()
-    {
-        NFSe::shouldReceive('generate')->once();
-        $payment = Payment::factory()->create();
-        $nfse = PaymentNfse::factory()->toPayment($payment)->create();
-
-        $this->postJson(route('nfse.webhook.store'), [
-            'protocolo' => 4489,
-            'status' => 'processado_com_erro',
-            'response' => [
-                [
-                    'rps' => $nfse->id,
-                    'codigo' => 'RNG6110',
-                    'correcao' => null,
-                    'mensagem' => 'Falha no Schame Xml',
-                ],
-            ],
-        ])->assertOk();
-
-        $nfse->refresh();
-
-        $this->assertTrue($nfse->isProcessing());
-        $this->assertCount(1, $nfse->errors()->get());
-    }
 
     public function test_nfse_failed_if_receives_error_on_retry()
     {
