@@ -15,7 +15,7 @@ class GenerateNFSeTemplate implements Arrayable
 
     protected array $data;
 
-    public function __construct(protected PaymentNfse $nfse)
+    public function __construct(protected PaymentNfse $nfse, protected NFSeCustomer $customer)
     {
         $this->emittedAt = Carbon::now()->timezone('America/Recife')->format('Y-m-d\TH:i:s');
         $this->data = $this->template();
@@ -68,7 +68,7 @@ class GenerateNFSeTemplate implements Arrayable
      */
     private function buildCustomer(array &$data): void
     {
-        $customer = $this->nfse->customer;
+        $customer = $this->customer;
 
         if (! empty($customer->taxId)) {
             $data['tomador'][strtolower($customer->documentType)] = $customer->taxId;

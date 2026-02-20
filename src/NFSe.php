@@ -5,8 +5,7 @@ namespace NFSe;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static bool generate(\NFSe\Models\Payment $payment)
- * @method static bool retryOnError(\NFSe\Models\Payment|\NFSe\Models\PaymentNfse $payment)
+ * @method static bool generate(\NFSe\Models\PaymentNfse $nfse, \NFSe\NFSeCustomer $customer)
  *
  * @see NFSeService
  */

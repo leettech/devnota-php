@@ -23,7 +23,7 @@ class GenerateNFSeTest extends TestCase
 
         $payment = Payment::factory()->create();
 
-        NFSe::generate($payment);
+        $payment->generateNfse();
 
         $nfse = PaymentNfse::first();
 
@@ -41,7 +41,7 @@ class GenerateNFSeTest extends TestCase
         $payment = Payment::factory()->create();
         PaymentNfse::factory()->issued()->toPayment($payment)->create();
 
-        NFSe::generate($payment);
+        $payment->generateNfse();
 
         Http::assertSentCount(0);
     }
@@ -53,7 +53,7 @@ class GenerateNFSeTest extends TestCase
 
         $payment = Payment::factory()->create(['date' => now()->subMonth()]);
 
-        NFSe::generate($payment);
+        $payment->generateNfse();
 
         Http::assertSentCount(0);
 
@@ -67,7 +67,7 @@ class GenerateNFSeTest extends TestCase
 
         $payment = Payment::factory()->create(['price' => 0]);
 
-        NFSe::generate($payment);
+        $payment->generateNfse();
 
         Http::assertSentCount(0);
         $this->assertNull($payment->refresh()->paymentNfse);

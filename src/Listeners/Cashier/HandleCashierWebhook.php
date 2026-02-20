@@ -42,7 +42,7 @@ class HandleCashierWebhook
             'price' => (string) DolarHoje::convertIf(str($currency)->upper()->toString() === 'USD', $price),
         ]);
 
-        NFSe::generate($payment);
+        $payment->generateNfse();
     }
 
     private function extractCharge($event)
