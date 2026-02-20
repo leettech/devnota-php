@@ -2,11 +2,15 @@
 
 namespace NFSe\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use NFSe\Database\Factories\PaymentFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use NFSe\Exceptions\IllegalStateException;
+use NFSe\NFSe;
+use NFSe\NFSeCustomer;
 
 /**
  * @property int $id
@@ -60,5 +64,28 @@ class Payment extends Model
         return Attribute::make(
             get: fn () => $this->nfse()->first(),
         );
+    }
+
+    public function generateNfse()
+    {
+        $this->loadMissing('nfse');
+        if (is_null($this->nfse)) {
+            throw_unless(Carbon::parse($this->date)->isSameMonth(now()), new IllegalStateException('NFSe can only be generated in the same month the payment was confirmed'));
+            throw_unless($this->price > 0, new IllegalStateException('NFSe cannot be generated for payments with zero or negative value.'));
+
+            $customer = NFSeCustomer::fromPayment($this);
+
+            $nfse = $this->nfse()->firstOrCreate([
+                'payment_id' => $this->id,
+            ], [
+                'payment_date' => $this->date,
+                'price' => $this->price,
+                'customer' => $customer,
+            ]);
+
+            NFSe::generate($nfse, $customer);
+        } else {
+            throw_unless($this->paymentNfse->isProcessing(), new IllegalStateException('We should not generate a nfse more than once'));
+        }
     }
 }

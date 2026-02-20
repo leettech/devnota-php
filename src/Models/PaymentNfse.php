@@ -5,7 +5,6 @@ namespace NFSe\Models;
 use NFSe\NFSeCustomer;
 use NFSe\Casts\NFSeCustomerCast;
 use Illuminate\Database\Eloquent\Model;
-use NFSe\Models\PaymentNfse\NFSePayload;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use NFSe\Models\PaymentNfse\PaymentNfseStatus;
 use NFSe\Database\Factories\PaymentNfseFactory;
@@ -88,10 +87,5 @@ class PaymentNfse extends Model
     public function fail()
     {
         $this->update(['status' => PaymentNfseStatus::Error]);
-    }
-
-    public function payload($emittedAt)
-    {
-        return (new NFSePayload($this, $emittedAt))->toArray();
     }
 }

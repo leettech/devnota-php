@@ -42,7 +42,7 @@ class HandleCashierWebhook
             'price' => (string) DolarHoje::convertIf(str($currency)->upper()->toString() === 'USD', $price),
         ]);
 
-        NFSe::generate($payment);
+        $payment->generateNfse();
     }
 
     private function extractCharge($event)
@@ -59,13 +59,13 @@ class HandleCashierWebhook
         $model = config('nfse.models.user');
 
         if (! is_string($model) || ! class_exists($model)) {
-            nfseLogger()->info('You must configure nfse.models.user with a valid Eloquent model.');
+            info('You must configure nfse.models.user with a valid Eloquent model.');
 
             return null;
         }
 
         if (! is_subclass_of($model, Model::class)) {
-            nfseLogger()->info("{$model} must extend ".Model::class);
+            info("{$model} must extend ".Model::class);
 
             return null;
         }
@@ -100,7 +100,7 @@ class HandleCashierWebhook
             ->first();
 
         if (! $user) {
-            nfseLogger()->info(
+            info(
                 'User not found. It is not possible to create a payment without billing information.',
                 ['charge' => $charge]
             );

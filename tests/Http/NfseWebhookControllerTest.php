@@ -46,7 +46,7 @@ class NfseWebhookControllerTest extends TestCase
 
     public function test_register_nfse_error()
     {
-        NFSe::shouldReceive('retryOnError')->once();
+        NFSe::shouldReceive('generate')->once();
         $payment = Payment::factory()->create();
         $nfse = PaymentNfse::factory()->toPayment($payment)->create();
 
@@ -71,7 +71,7 @@ class NfseWebhookControllerTest extends TestCase
 
     public function test_nfse_failed_if_receives_error_on_retry()
     {
-        NFSe::shouldReceive('retryOnError')->never();
+        NFSe::shouldReceive('generate')->never();
         $payment = Payment::factory()->create();
         $nfse = PaymentNfse::factory()->toPayment($payment)->create();
 

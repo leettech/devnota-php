@@ -24,8 +24,6 @@ class HandleCashierWebhookTest extends TestCase
             'payload' => $this->paymentIntentSucceededPayload(),
         ]);
 
-        $user->refresh();
-
         $payment = $user->payments()->first();
 
         $this->assertNotNull($payment);
@@ -62,10 +60,16 @@ class HandleCashierWebhookTest extends TestCase
 
     private function paymentIntentSucceededPayload(): array
     {
-        return json_decode(
+        $payload = json_decode(
             file_get_contents(__DIR__.'/fixtures/payment_intent.succeeded.json'),
             true,
             flags: JSON_THROW_ON_ERROR
         );
+
+        $now = now()->timestamp;
+        data_set($payload, 'data.object.created', $now);
+        data_set($payload, 'data.object.charges.data.0.created', $now);
+
+        return $payload;
     }
 }

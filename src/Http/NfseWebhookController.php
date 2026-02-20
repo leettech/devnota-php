@@ -9,13 +9,12 @@ use Illuminate\Http\Request;
 use NFSe\Models\PaymentNfse;
 use NFSe\Events\WebhookReceived;
 use Illuminate\Routing\Controller;
+use NFSe\NFSeCustomer;
 
 class NfseWebhookController extends Controller
 {
     public function store(Request $request)
     {
-        nfseLogger()->info('nfse callback', request()->all());
-
         WebhookReceived::dispatch(request()->all());
 
         $data = $request->response[0];
@@ -35,20 +34,17 @@ class NfseWebhookController extends Controller
         }
 
         if ($request->status == 'processado') {
-            $payment->paymentNfse->issue(
-                $data['nfse']['numero'],
-                $data['nfse']['chave'],
-                $data['data_emissao']
-            );
+            $nfse->issue($data['nfse']['numero'], $data['nfse']['chave'], $data['data_emissao']);
         } else {
             // retry on first error only
-            if ($payment->paymentNfse->errors()->count() === 0) {
-                NFSe::retryOnError($payment);
+            if ($nfse->errors()->count() === 0) {
+                $customer = NFSeCustomer::fromPayment($payment);
+                NFSe::generate($nfse, $customer);
             } else {
-                $payment->paymentNfse->fail();
+                $nfse->fail();
             }
-
-            $this->failError($payment->paymentNfse, $request->response[0]['codigo'], $request->response[0]['mensagem']);
+                
+            $this->failError($nfse, $request->response[0]['codigo'], $request->response[0]['mensagem']);
         }
     }
 

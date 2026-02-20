@@ -27,14 +27,10 @@ trait EventMap
 
     protected function eventsForProvider(): array
     {
-        if (NFSeConfig::isCashier()) {
-            return [
-                'Laravel\\Cashier\\Events\\WebhookReceived' => [
-                    HandleCashierWebhook::class,
-                ],
-            ];
-        }
-
-        return [];
+        return [
+            'Laravel\\Cashier\\Events\\WebhookReceived' => [
+                HandleCashierWebhook::class,
+            ],
+        ];
     }
 }
