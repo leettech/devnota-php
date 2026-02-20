@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $verification_code
  * @property string $issue_date
  * @property string $number
+ * @property string|null $link
  * @property PaymentNfseStatus $status
  * @property string $payment_date
  * @property NFSeCustomer $customer
@@ -29,6 +30,7 @@ class PaymentNfse extends Model
         'verification_code',
         'number',
         'issue_date',
+        'link',
         'status',
         'customer',
         'payment_date',
@@ -70,12 +72,13 @@ class PaymentNfse extends Model
         return $this->status == PaymentNfseStatus::Error;
     }
 
-    public function issue($number, $verificationCode, $issueDate)
+    public function issue($number, $verificationCode, $issueDate, $link = null)
     {
         $this->fill([
             'number' => $number,
             'verification_code' => $verificationCode,
             'issue_date' => $issueDate,
+            'link' => $link,
             'status' => PaymentNfseStatus::Issued,
         ]);
 

@@ -34,7 +34,7 @@ class NfseWebhookController extends Controller
         }
 
         if ($request->status == 'processado') {
-            $nfse->issue($data['nfse']['numero'], $data['nfse']['chave'], $data['data_emissao']);
+            $nfse->issue($data['nfse']['numero'], $data['nfse']['chave'], $data['data_emissao'], $data['link']);
         } else {
             $nfse->fail();
             $this->failError($nfse, $request->response[0]['codigo'], $request->response[0]['mensagem']);
