@@ -14,10 +14,14 @@ class GenerateNFSeTemplate implements Arrayable
     public readonly string $emittedAt;
 
     protected array $data;
+    public readonly bool $isBusiness;
+    public readonly float $amount;
 
     public function __construct(protected PaymentNfse $nfse, protected NFSeCustomer $customer)
     {
         $this->emittedAt = Carbon::now()->timezone('America/Recife')->format('Y-m-d\TH:i:s');
+        $this->isBusiness = strtolower($customer->documentType) === 'cnpj' ? true : false;
+        $this->amount = $this->nfse->price;
         $this->data = $this->template();
     }
 
@@ -45,6 +49,9 @@ class GenerateNFSeTemplate implements Arrayable
                     'valor_servicos' => $this->nfse->price,
                     'iss_retido' => config('nfse.config.servico.iss_retido'),
                     'aliquota' => config('nfse.config.servico.aliquota'),
+                    'pis_cofins_retido' => $this->pixCofinsRetido(),
+                    'valor_ir' => $this->valorIr(),
+                    'valor_csll' => $this->valorCsll()
                 ],
                 'item_lista_servico' => config('nfse.config.servico.item_lista_servico'),
                 'codigo_tributacao_municipio' => config('nfse.config.servico.codigo_tributacao_municipio'),
@@ -113,5 +120,38 @@ class GenerateNFSeTemplate implements Arrayable
         if (! empty($customer->email)) {
             $data['tomador']['email'] = $customer->email;
         }
+    }
+
+    /**
+     * Passar 3 apenas Para CNPJ igual ou maior que 215,10
+     */
+    private function pixCofinsRetido()
+    {
+        if ($this->isBusiness && $this->amount >= 215.10) {
+            return 3;
+        }
+        return 0;
+    }
+
+    /**
+     * apenas para CNPJ com valor igual ou maior que 680 (1.5%)
+     */
+    private function valorIr()
+    {
+        if ($this->isBusiness && $this->amount >= 680) {
+            return round($this->amount * 0.015, 2);
+        }
+        return 0;
+    }
+
+    /**
+     * apenas para CNPJ com valor igual ou maior que 215,10 (1%)
+     */
+    public function valorCsll()
+    {
+        if ($this->isBusiness && $this->amount >= 215.10) {
+            return round($this->amount * 0.01, 2);
+        }
+        return 0;
     }
 }

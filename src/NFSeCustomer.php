@@ -5,6 +5,7 @@ namespace NFSe;
 use NFSe\Models\Payment;
 use Illuminate\Support\Arr;
 use NFSe\Support\StrHelper;
+use NFSe\Support\ViaCepService;
 
 final class NFSeCustomer
 {
@@ -28,6 +29,35 @@ final class NFSeCustomer
         $this->addressNumber = StrHelper::clean($addressNumber);
         $this->neighborhood = StrHelper::clean($neighborhood);
         $this->phone = StrHelper::padPhone($phone);
+
+        try {
+            $response = resolve(ViaCepService::class)->consult($this->zipcode);
+            $cepData = $response->getBody()->getContents();
+            $viacep = json_decode($cepData, true);
+    
+            if (empty($this->neighborhood) && ! empty($viacep['bairro'])) {
+                $this->neighborhood = $viacep['bairro'];
+            }
+    
+            if (empty($this->address) && ! empty($viacep['logradouro'])) {
+                $this->address = $viacep['logradouro'];
+            }
+    
+            if (empty($this->uf) && ! empty($viacep['uf'])) {
+                $this->uf = $viacep['uf'];
+            }
+    
+            if (empty($this->cityIbgeCode) && ! empty($viacep['ibge'])) {
+                $this->cityIbgeCode = $viacep['ibge'];
+            }
+    
+            // using neighborhood as reference, if address number is empty, set it to 'S/N' (without number)
+            if (empty($this->addressNumber) && ! empty($viacep['bairro'])) {
+                $this->addressNumber = 'S/N';
+            }
+        } catch (\Throwable $th) {
+            // do nothing, just continue with the provided data
+        }
     }
 
     public static function fromArray(array $data): self
