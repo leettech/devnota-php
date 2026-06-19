@@ -47,4 +47,15 @@ class NFSeService
             'rps' => $template->toArray(),
         ]);
     }
+
+    public function cancel(PaymentNfse $nfse)
+    {
+        $template = new CancelNFSeTemplate($nfse);
+        $response = $this->http->post('cancelar', array_merge([
+            'ambiente' => config('services.nfse.environment'),
+            'callback' => route('nfse.webhook.store'),
+        ], $template->toArray()));
+
+        return $response;
+    }
 }

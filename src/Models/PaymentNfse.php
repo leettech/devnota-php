@@ -87,6 +87,13 @@ class PaymentNfse extends Model
         }
     }
 
+     public function cancel()
+    {
+        $this->status = PaymentNfseStatus::Canceled;
+        $this->deleted_at = now();
+        $this->save();
+    }
+
     public function fail()
     {
         $this->update(['status' => PaymentNfseStatus::Error]);
