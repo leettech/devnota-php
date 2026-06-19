@@ -52,7 +52,7 @@ class NFSeService
     {
         $template = new CancelNFSeTemplate($nfse);
         $response = $this->http->post('cancelar', array_merge([
-            'ambiente' => config('services.nfse.environment'),
+            'ambiente' => config('nfse.environment'),
             'callback' => route('nfse.webhook.store'),
         ], $template->toArray()));
 
