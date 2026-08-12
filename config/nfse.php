@@ -5,7 +5,7 @@ return [
         'prefix' => 'nfse',
         'middleware' => [],
     ],
-    'base_uri' => 'https://devnota.com.br/api',
+    'base_uri' => 'https://api.devnota.com.br',
     'token' => env('NFSE_TOKEN'),
     'environment' => env('NFSE_ENVIRONMENT', env('APP_ENV') === 'local' ? 'developer' : 'production'),
     'log_channel' => env('NFSE_LOG_CHANNEL', 'nfse'),
