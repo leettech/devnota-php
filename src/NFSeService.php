@@ -21,7 +21,7 @@ class NFSeService
         $this->http = Http::baseUrl(config('nfse.base_uri') . '/nfse')->withHeaders([
             'Company' => config('nfse.config.prestador.cnpj'),
             'Authorization' => sprintf('Bearer %s', config('nfse.token')),
-        ])->withMiddleware(Middleware::mapRequest(function (RequestInterface $request) {
+        ])->acceptJson()->withMiddleware(Middleware::mapRequest(function (RequestInterface $request) {
             $this->lastRequest = $request;
 
             return $request;

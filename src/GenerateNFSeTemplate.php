@@ -39,7 +39,7 @@ class GenerateNFSeTemplate implements Arrayable
                 'tipo' => config('nfse.config.rps.tipo'),
             ],
             'data_emissao' => $this->emittedAt,
-            'data_competencia' => $this->nfse->payment_date,
+            'data_competencia' => $this->nfse->payment_date ? Carbon::parse($this->nfse->payment_date)->format('Y-m-d') : null,
             'natureza_operacao' => config('nfse.config.fiscal.natureza_operacao'),
             'optante_simples_nacional' => config('nfse.config.fiscal.optante_simples_nacional'),
             'incentivador_cultural' => config('nfse.config.fiscal.incentivador_cultural'),

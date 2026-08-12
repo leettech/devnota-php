@@ -19,7 +19,7 @@ class GenerateNFSeTemplateTest extends TestCase
 
         $this->assertEquals($nfse->id, $template->get('identificacao.numero'));
         $this->assertEquals($nfse->price, $template->get('servico.valores.valor_servicos'));
-        $this->assertEquals($nfse->payment_date, $template->get('data_competencia'));
+        $this->assertEquals($nfse->payment_date->format('Y-m-d'), $template->get('data_competencia'));
         $this->assertEquals('Company ZeroOne', $template->get('tomador.nome'));
         $this->assertEquals('contact@zeroone.com', $template->get('tomador.email'));
         $this->assertEquals('049.611.720-30', $template->get('tomador.cpf'));
@@ -160,7 +160,7 @@ class GenerateNFSeTemplateTest extends TestCase
                 'tipo' => 1,
             ],
             'data_emissao' => $template->emittedAt,
-            'data_competencia' => $nfse->payment_date,
+            'data_competencia' => $nfse->payment_date->format('Y-m-d'),
             'natureza_operacao' => 1,
             'optante_simples_nacional' => 3,
             'incentivador_cultural' => 2,
