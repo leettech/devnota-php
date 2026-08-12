@@ -100,7 +100,11 @@ class PaymentNfse extends Model
             return false;
         }
 
-        return $this->updated_at->diffInMinutes(now()) >= config('nfse.retry_stuck_delay_in_minutes');
+        // apps com a config publicada podem não ter a chave; sem default o comparativo
+        // viraria ">= 0" e toda nota em processing seria considerada travada
+        $delay = config('nfse.retry_stuck_delay_in_minutes') ?? 30;
+
+        return $this->updated_at->diffInMinutes(now()) >= $delay;
     }
 
     public function issue($number, $verificationCode, $issueDate, $link = null)
