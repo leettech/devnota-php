@@ -4,6 +4,7 @@ namespace NFSe;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use NFSe\Console\ProcessStuckedNFSeCommand;
 
 class NFSeServiceProvider extends ServiceProvider
 {
@@ -34,6 +35,19 @@ class NFSeServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../config/nfse.php' => config_path('nfse.php'),
         ], 'nfse-config');
+
+        $this->registerCommands();
+    }
+
+    protected function registerCommands(): void
+    {
+        if (! $this->app->runningInConsole()) {
+            return;
+        }
+
+        $this->commands([
+            ProcessStuckedNFSeCommand::class,
+        ]);
     }
 
     protected function registerRoutes(): void

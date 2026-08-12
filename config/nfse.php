@@ -10,6 +10,7 @@ return [
     'environment' => env('NFSE_ENVIRONMENT', env('APP_ENV') === 'local' ? 'developer' : 'production'),
     'log_channel' => env('NFSE_LOG_CHANNEL', 'nfse'),
     'dolar_fallback_value' => 5.3,
+    'retry_stuck_delay_in_minutes' => env('NFSE_RETRY_STUCK_DELAY_IN_MINUTES', 30),
 
     'models' => [
         'user' => null,

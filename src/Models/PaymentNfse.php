@@ -5,9 +5,11 @@ namespace NFSe\Models;
 use NFSe\NFSeCustomer;
 use NFSe\Casts\NFSeCustomerCast;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use NFSe\Models\PaymentNfse\PaymentNfseStatus;
 use NFSe\Database\Factories\PaymentNfseFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
@@ -19,7 +21,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string|null $link
  * @property PaymentNfseStatus $status
  * @property string $payment_date
- * @property NFSeCustomer $customer
+ * @property NFSeCustomer|null $customer
+ * @property \Illuminate\Support\Carbon $updated_at
+ * @property-read Payment|null $payment
  */
 class PaymentNfse extends Model
 {
@@ -52,9 +56,27 @@ class PaymentNfse extends Model
         return PaymentNfseFactory::new();
     }
 
+    public function payment(): BelongsTo
+    {
+        return $this->belongsTo(Payment::class);
+    }
+
     public function errors()
     {
         return $this->hasMany(PaymentNfseError::class);
+    }
+
+    public function scopeProcessing(Builder $query): Builder
+    {
+        return $query->where('status', PaymentNfseStatus::Processing);
+    }
+
+    public function scopeThisMonth(Builder $query): Builder
+    {
+        return $query->whereBetween('created_at', [
+            now()->startOfMonth(),
+            now()->endOfMonth(),
+        ]);
     }
 
     public function isIssued()
@@ -72,6 +94,15 @@ class PaymentNfse extends Model
         return $this->status == PaymentNfseStatus::Error;
     }
 
+    public function isStuck(): bool
+    {
+        if (! $this->isProcessing()) {
+            return false;
+        }
+
+        return $this->updated_at->diffInMinutes(now()) >= config('nfse.retry_stuck_delay_in_minutes');
+    }
+
     public function issue($number, $verificationCode, $issueDate, $link = null)
     {
         $this->fill([
@@ -87,7 +118,7 @@ class PaymentNfse extends Model
         }
     }
 
-     public function cancel()
+    public function cancel()
     {
         $this->status = PaymentNfseStatus::Canceled;
         $this->deleted_at = now();

@@ -50,3 +50,25 @@ A emissão de NFS-e é **assíncrona**: o número da nota não é retornado na c
 |----------------|--------------------|------------|-------------------|
 | RPS            | Aplicação cliente  | Não        | Sim (com a série) |
 | Número da nota | Órgão emissor (AN) | Sim        | Sim               |
+
+---
+
+## Reprocessando NFSe travadas
+
+Quando a emissão fica pendente (sem webhook de retorno), a NFSe permanece com status
+`processing`. O comando abaixo reenvia essas notas para a Devnota:
+
+```bash
+php artisan nfse:process
+```
+
+Ele percorre as NFSe do mês corrente que estão em `processing` e cujo `updated_at`
+já ultrapassou `nfse.retry_stuck_delay_in_minutes` (padrão: 30 minutos, configurável
+via `NFSE_RETRY_STUCK_DELAY_IN_MINUTES`), reenviando cada uma com os dados do cliente
+salvos na própria nota.
+
+Para rodar automaticamente, agende no `routes/console.php` (ou no `Kernel`):
+
+```php
+Schedule::command('nfse:process')->hourly();
+```
